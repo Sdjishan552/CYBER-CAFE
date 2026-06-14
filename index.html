@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#fffaf0">
+<title>Cyber Cafe Cash Book</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --paper:#fdf8ef;
+    --paper-line:#e8ddc8;
+    --ink:#3a3327;
+    --ink-soft:#8a7f6c;
+    --teal:#1f8a8a;
+    --teal-bg:#e3f4f2;
+    --coral:#e76f51;
+    --coral-bg:#fdeae4;
+    --gold:#d4a017;
+    --gold-bg:#fbf1d8;
+    --violet:#7c6fce;
+    --violet-bg:#ece9fb;
+    --green:#3a9d5d;
+    --green-bg:#e6f5ec;
+    --card:#ffffff;
+    --shadow:0 2px 10px rgba(60,50,30,0.06);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,'Segoe UI',system-ui,Roboto,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    padding-bottom:78px;
+    background-image:linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size:100% 32px;
+    background-attachment:local;
+  }
+
+  header{
+    background:var(--paper);
+    padding:18px 18px 14px;
+    position:sticky;top:0;z-index:50;
+    border-bottom:2px solid var(--ink);
+  }
+  header h1{
+    font-size:21px;font-weight:800;letter-spacing:-0.3px;
+    font-family:Georgia,'Times New Roman',serif;
+  }
+  header .sub{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+
+  .container{padding:16px;max-width:520px;margin:0 auto;}
+
+  .card{
+    background:var(--card);border-radius:16px;padding:18px;margin-bottom:16px;
+    box-shadow:var(--shadow);border:1px solid #f0e8d8;
+  }
+  .card h2{
+    font-size:12px;color:var(--ink-soft);margin-bottom:12px;font-weight:700;
+    text-transform:uppercase;letter-spacing:1.2px;
+  }
+
+  .hero{
+    background:linear-gradient(135deg,var(--teal) 0%, #176f6f 100%);
+    border-radius:18px;padding:24px 20px;margin-bottom:16px;
+    color:#fff; box-shadow:0 6px 20px rgba(31,138,138,0.25);
+    position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:"₹"; position:absolute; right:-10px; bottom:-30px;
+    font-size:140px; font-weight:900; opacity:0.08; font-family:Georgia,serif;
+  }
+  .hero .label{font-size:12px;opacity:0.85;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+  .hero .val{font-size:38px;font-weight:800;margin-top:6px;font-family:Georgia,serif;}
+
+  .balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .balance-box{border-radius:12px;padding:14px;text-align:center;}
+  .balance-box.income{background:var(--green-bg);}
+  .balance-box.expense{background:var(--coral-bg);}
+  .balance-box .label{font-size:11px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+  .balance-box .val{font-size:21px;font-weight:800;margin-top:4px;}
+  .green{color:var(--green);}
+  .red{color:var(--coral);}
+  .teal{color:var(--teal);}
+  .gold{color:var(--gold);}
+  .violet{color:var(--violet);}
+
+  label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:5px;margin-top:12px;font-weight:600;}
+  input,select,textarea{
+    width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--paper-line);
+    background:#fffef9;color:var(--ink);font-size:15px;font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  button{
+    border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;
+    cursor:pointer;margin-top:14px;width:100%;transition:transform 0.1s, opacity 0.15s;
+    font-family:inherit;
+  }
+  button:active{transform:scale(0.98);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-success{background:var(--green);color:#fff;}
+  .btn-danger{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#f3ede0;color:var(--ink);}
+
+  .tx-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--paper-line);font-size:14px;gap:8px;
+  }
+  .tx-item:last-child{border-bottom:none;}
+  .tx-left{flex:1;min-width:0;}
+  .tx-left > div:first-child{font-weight:600;font-size:14px;}
+  .tx-note{color:var(--ink-soft);font-size:12px;margin-top:2px;}
+  .tx-amt{font-weight:800;font-size:15px;white-space:nowrap;}
+  .tx-del{background:#f3ede0;color:var(--coral);border:none;border-radius:8px;
+    padding:6px 10px;margin:0;font-size:15px;width:auto;font-weight:700;}
+
+  .denom-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+  .denom-box{
+    background:var(--gold-bg);border-radius:10px;padding:10px;text-align:center;
+    border:1px solid #f3e3b8;
+  }
+  .denom-box .dval{font-size:12px;color:var(--gold);font-weight:800;}
+  .denom-box input{text-align:center;padding:8px 4px;font-size:14px;margin-top:6px;
+    border-color:#f0e0b0;background:#fffdf6;}
+
+  nav{
+    position:fixed;bottom:0;left:0;right:0;background:#fffef9;
+    display:flex;border-top:1px solid var(--paper-line);z-index:50;
+    padding-bottom:env(safe-area-inset-bottom);
+    box-shadow:0 -2px 12px rgba(60,50,30,0.05);
+  }
+  nav button{
+    flex:1;background:none;color:var(--ink-soft);border-radius:0;margin:0;
+    padding:11px 4px 9px;font-size:11.5px;display:flex;flex-direction:column;
+    align-items:center;gap:3px;font-weight:600;
+  }
+  nav button.active{color:var(--teal);}
+  nav .icon{font-size:21px;}
+
+  .page{display:none;}
+  .page.active{display:block;animation:fade 0.2s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .lock-overlay{
+    position:fixed;inset:0;background:rgba(58,51,39,0.5);z-index:100;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
+    backdrop-filter:blur(2px);
+  }
+  .lock-card{
+    background:var(--card);border-radius:18px;padding:28px 24px;width:100%;max-width:280px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);text-align:center;
+  }
+  .lock-card h2{font-size:18px;color:var(--ink);text-transform:none;letter-spacing:0;margin-bottom:6px;}
+  .lock-card p{color:var(--ink-soft);font-size:13px;margin-bottom:14px;}
+  .lock-card input{text-align:center;font-size:22px;letter-spacing:6px;}
+
+  .empty{text-align:center;color:var(--ink-soft);padding:28px 10px;font-size:14px;}
+
+  .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--paper-line);font-size:14px;}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .v{font-weight:800;}
+
+  .badge{display:inline-block;padding:3px 9px;border-radius:7px;font-size:10.5px;font-weight:700;letter-spacing:0.3px;}
+  .badge-in{background:var(--green-bg);color:var(--green);}
+  .badge-out{background:var(--coral-bg);color:var(--coral);}
+  .badge-edited{background:var(--gold-bg);color:var(--gold);margin-left:6px;}
+
+  .toast{
+    position:fixed;bottom:88px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:11px 22px;border-radius:30px;
+    font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity 0.3s,transform 0.3s;
+    pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  .diff-warn{font-size:12.5px;margin-top:10px;text-align:center;font-weight:700;padding:8px;border-radius:8px;}
+  .diff-ok{background:var(--green-bg);color:var(--green);}
+  .diff-bad{background:var(--gold-bg);color:#a07300;}
+
+  .small-note{font-size:11.5px;color:var(--ink-soft);margin-top:8px;line-height:1.4;}
+
+  .backup-banner{
+    background:var(--gold-bg);color:#a07300;border:1px solid #f3e3b8;
+    border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;
+    margin-bottom:16px;line-height:1.4;
+  }
+
+  .filter-bar{display:flex;gap:8px;margin-bottom:12px;}
+  .filter-bar select{font-size:13px;padding:10px;}
+
+  .eye-btn{
+    position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.18);
+    border:none;border-radius:50%;width:36px;height:36px;font-size:17px;
+    display:flex;align-items:center;justify-content:center;padding:0;margin:0;
+    color:#fff;z-index:2;
+  }
+  .eye-btn:active{transform:scale(0.95);}
+
+  ::placeholder{color:#c4b8a0;}
+  select#entryType{font-weight:700;}
+</style>
+</head>
+<body>
+
+<div id="lockScreen" class="lock-overlay" style="display:none;">
+  <div class="lock-card">
+    <h2>🔒 Past Date Edit</h2>
+    <p>Enter your security code to continue</p>
+    <input type="password" id="lockInput" inputmode="numeric" placeholder="••••">
+    <button class="btn-primary" onclick="checkLock()">Unlock</button>
+    <button class="btn-secondary" onclick="cancelLock()">Cancel</button>
+  </div>
+</div>
+
+<header>
+  <h1>Cyber Cafe Cash Book</h1>
+  <div class="sub" id="todayDate"></div>
+</header>
+
+<div class="container">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="hero">
+      <button id="eyeToggle" class="eye-btn" onclick="toggleEye()">👁️</button>
+      <div class="label">Cash in hand · all time</div>
+      <div class="val" id="netBalance">₹0</div>
+    </div>
+
+    <div id="backupBanner"></div>
+
+
+    <div class="card">
+      <h2>Today</h2>
+      <div class="balance-grid">
+        <div class="balance-box income">
+          <div class="label">Income</div>
+          <div class="val green" id="todayIn">₹0</div>
+        </div>
+        <div class="balance-box expense">
+          <div class="label">Expense</div>
+          <div class="val red" id="todayOut">₹0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Add an entry</h2>
+      <label>Date</label>
+      <input type="date" id="entryDate">
+
+      <label>Type</label>
+      <select id="entryType">
+        <option value="in">In</option>
+        <option value="out">Out</option>
+      </select>
+
+      <label>Amount (₹)</label>
+      <input type="number" id="entryAmount" inputmode="decimal" placeholder="0">
+
+      <label>Category</label>
+      <select id="entryCategory">
+        <option>Browsing/Printing</option>
+        <option>Photocopy/Scan</option>
+        <option>Online Form/Service</option>
+        <option>Recharge/Bill Pay</option>
+        <option>Electricity Bill</option>
+        <option>Internet/WiFi Bill</option>
+        <option>Owner Withdrawal</option>
+        <option>Owner Deposit</option>
+        <option>Other</option>
+      </select>
+
+      <label>Note (optional)</label>
+      <input type="text" id="entryNote" placeholder="e.g. Customer name, details" autocomplete="off" list="noteSuggestions">
+      <datalist id="noteSuggestions"></datalist>
+
+      <label>Quick amount</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;" id="quickAmounts">
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(10)">₹10</button>
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(20)">₹20</button>
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(50)">₹50</button>
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(100)">₹100</button>
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(200)">₹200</button>
+        <button type="button" class="btn-secondary" style="width:auto;padding:7px 12px;margin:0;font-size:13px;" onclick="setQuickAmt(500)">₹500</button>
+      </div>
+
+      <button class="btn-primary" onclick="addEntry()">Add entry</button>
+      <div class="small-note" id="dateWarn"></div>
+    </div>
+
+    <div class="card">
+      <h2>Recent transactions</h2>
+      <div id="recentList"></div>
+    </div>
+
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div class="card">
+      <h2>Filter</h2>
+      <div class="filter-bar">
+        <select id="filterMonth"></select>
+        <select id="filterType">
+          <option value="all">All</option>
+          <option value="in">Income only</option>
+          <option value="out">Expense only</option>
+        </select>
+      </div>
+      <div class="filter-bar" style="margin-top:-4px;">
+        <select id="filterCategory" style="font-size:13px;padding:10px;">
+          <option value="all">All categories</option>
+        </select>
+      </div>
+      <div class="balance-grid">
+        <div class="balance-box income">
+          <div class="label">Total In</div>
+          <div class="val green" id="filterIn">₹0</div>
+        </div>
+        <div class="balance-box expense">
+          <div class="label">Total Out</div>
+          <div class="val red" id="filterOut">₹0</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>All entries</h2>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- DENOMINATIONS -->
+  <div class="page" id="page-denom">
+    <div class="card">
+      <h2>Cash denomination count</h2>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:6px;line-height:1.5;">
+        Enter how many of each note/coin you physically have right now. The total should match your cash balance below — you can freely re-split notes (e.g. swap 2×₹100 for 4×₹50) as long as the total stays the same.
+      </p>
+      <div class="denom-grid" id="denomGrid"></div>
+
+      <div class="row2" style="margin-top:14px;">
+        <div class="balance-box" style="background:var(--gold-bg);">
+          <div class="label">Denomination total</div>
+          <div class="val gold" id="denomTotal">₹0</div>
+        </div>
+        <div class="balance-box" style="background:var(--teal-bg);">
+          <div class="label">Cash balance (target)</div>
+          <div class="val teal" id="denomTarget">₹0</div>
+        </div>
+      </div>
+      <div class="diff-warn" id="denomDiff"></div>
+
+      <button class="btn-success" onclick="saveDenom()">Save denomination snapshot</button>
+    </div>
+
+    <div class="card">
+      <h2>Snapshot history</h2>
+      <div id="denomHistory"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="page" id="page-stats">
+    <div class="card">
+      <h2>Overview</h2>
+      <div class="stat-row"><span>Total income (all time)</span><span class="v green" id="statTotalIn">₹0</span></div>
+      <div class="stat-row"><span>Total expense (all time)</span><span class="v red" id="statTotalOut">₹0</span></div>
+      <div class="stat-row"><span>Net balance</span><span class="v teal" id="statNet">₹0</span></div>
+      <div class="stat-row"><span>Total transactions</span><span class="v" id="statCount">0</span></div>
+      <div class="stat-row"><span>Edited (past-date) entries</span><span class="v gold" id="statEdited">0</span></div>
+    </div>
+
+    <div class="card">
+      <h2>This month</h2>
+      <div class="stat-row"><span>Income</span><span class="v green" id="monthIn">₹0</span></div>
+      <div class="stat-row"><span>Expense</span><span class="v red" id="monthOut">₹0</span></div>
+      <div class="stat-row"><span>Net</span><span class="v teal" id="monthNet">₹0</span></div>
+      <div class="stat-row"><span>Avg daily income</span><span class="v green" id="monthAvgIn">₹0</span></div>
+      <div class="stat-row"><span>Avg daily expense</span><span class="v red" id="monthAvgOut">₹0</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Top expense categories (all time)</h2>
+      <div id="topCategories"></div>
+    </div>
+
+    <div class="card">
+      <h2>Best & worst days</h2>
+      <div class="stat-row"><span>Highest income day</span><span class="v green" id="bestDay">-</span></div>
+      <div class="stat-row"><span>Highest expense day</span><span class="v red" id="worstDay">-</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Backup &amp; restore</h2>
+      <p style="font-size:13px;color:var(--ink-soft);line-height:1.5;">
+        Link a backup file once. After that, every change you make is automatically saved to that file on your PC/phone — no downloads needed. If your browser data is ever cleared, use "Restore from file" to get everything back and re-link autosave.
+      </p>
+      <div id="lastBackupInfo" class="small-note" style="margin-top:8px;"></div>
+      <button class="btn-success" onclick="fsLinkFile()">🔗 Link backup file</button>
+      <button class="btn-secondary" onclick="fsRestoreFromFile()">📂 Restore from file</button>
+      <button class="btn-secondary" onclick="fsUnlink()">🔓 Unlink backup file</button>
+      <div class="small-note">Works in Chrome/Edge on desktop & Android. Other browsers: use manual download/restore below.</div>
+      <button class="btn-primary" onclick="exportData()">⬇ Download backup file (manual)</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()">⬆ Restore from backup file</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+
+    <div class="card">
+      <h2>Other</h2>
+      <button class="btn-secondary" onclick="changeSecurityCode()">🔑 Change security code</button>
+      <button class="btn-danger" onclick="resetAll()">Reset all data</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+  <button class="active" onclick="showPage('dashboard', this)"><span class="icon">🏠</span>Home</button>
+  <button onclick="showPage('history', this)"><span class="icon">📜</span>History</button>
+  <button onclick="showPage('denom', this)"><span class="icon">💵</span>Cash</button>
+  <button onclick="showPage('stats', this)"><span class="icon">📊</span>Stats</button>
+</nav>
+
+<script>
+let data = JSON.parse(localStorage.getItem('cashbook_data')) || {
+  transactions: [],
+  denomSnapshots: [],
+  securityCode: '1234',
+  nextId: 1
+};
+
+let privacyOn = (localStorage.getItem('cashbook_privacy') === '1');
+
+function save() {
+  localStorage.setItem('cashbook_data', JSON.stringify(data));
+  fsAutoSave();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILE SYSTEM ACCESS API — Permanent Auto-Save (linked file)
+   ─────────────────────────────────────────────────────────
+   • "Link Backup File" once → pick/create a .json file on disk.
+   • Every save() silently rewrites that file with full data.
+   • If browser data is ever wiped, "Restore from File" reloads
+     everything and re-links the same file for continued autosave.
+═══════════════════════════════════════════════════════════ */
+const FS_HANDLE_KEY = 'cashbook_fshandle';
+const FS_IDB_NAME   = 'cashbook_idb';
+const FS_IDB_STORE  = 'handles';
+const FS_SUPPORTED  = ('showSaveFilePicker' in window);
+let _fsHandle = null;
+let _fsSaveTimer = null;
+
+function _idbOpen() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(FS_IDB_NAME, 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(FS_IDB_STORE);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror = e => rej(e.target.error);
+  });
+}
+async function _idbPut(key, val) {
+  try {
+    const db = await _idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(FS_IDB_STORE, 'readwrite');
+      tx.objectStore(FS_IDB_STORE).put(val, key);
+      tx.oncomplete = () => res();
+      tx.onerror = e => rej(e.target.error);
+    });
+  } catch(e) {}
+}
+async function _idbGet(key) {
+  try {
+    const db = await _idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(FS_IDB_STORE, 'readonly');
+      const req = tx.objectStore(FS_IDB_STORE).get(key);
+      req.onsuccess = e => res(e.target.result);
+      req.onerror = e => rej(e.target.error);
+    });
+  } catch(e) { return null; }
+}
+async function _idbDelete(key) {
+  try {
+    const db = await _idbOpen();
+    return new Promise((res) => {
+      const tx = db.transaction(FS_IDB_STORE, 'readwrite');
+      tx.objectStore(FS_IDB_STORE).delete(key);
+      tx.oncomplete = () => res();
+    });
+  } catch(e) {}
+}
+
+async function fsInit() {
+  if (!FS_SUPPORTED) { renderBackupInfo(); return; }
+  try {
+    const saved = await _idbGet(FS_HANDLE_KEY);
+    if (saved) _fsHandle = saved;
+  } catch(e) { _fsHandle = null; await _idbDelete(FS_HANDLE_KEY); }
+  renderBackupInfo();
+}
+
+async function fsLinkFile() {
+  if (!FS_SUPPORTED) {
+    toast('✕ Not supported — use Chrome or Edge on desktop/Android');
+    return;
+  }
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'cashbook_autosave.json',
+      types: [{ description: 'CashBook JSON', accept: { 'application/json': ['.json'] } }]
+    });
+    _fsHandle = handle;
+    await _idbPut(FS_HANDLE_KEY, handle);
+    await _fsWriteNow();
+    toast('✓ Backup file linked — autosaving to disk');
+    renderBackupInfo();
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('✕ Could not link file');
+  }
+}
+
+async function fsUnlink() {
+  _fsHandle = null;
+  await _idbDelete(FS_HANDLE_KEY);
+  toast('Backup file unlinked');
+  renderBackupInfo();
+}
+
+function fsAutoSave() {
+  if (!_fsHandle) return;
+  clearTimeout(_fsSaveTimer);
+  _fsSaveTimer = setTimeout(_fsWriteNow, 500);
+}
+
+async function _fsWriteNow() {
+  if (!_fsHandle) return;
+  try {
+    const perm = await _fsHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      const req = await _fsHandle.requestPermission({ mode: 'readwrite' });
+      if (req !== 'granted') { toast('⚠ File write permission denied'); return; }
+    }
+    const writable = await _fsHandle.createWritable();
+    await writable.write(JSON.stringify(data, null, 2));
+    await writable.close();
+    localStorage.setItem('cashbook_last_backup', new Date().toISOString());
+    renderBackupInfo();
+  } catch(e) {
+    if (e.name === 'NotFoundError' || e.name === 'NoModificationAllowedError') {
+      _fsHandle = null;
+      await _idbDelete(FS_HANDLE_KEY);
+      toast('⚠ Backup file not found — please re-link');
+      renderBackupInfo();
+    }
+  }
+}
+
+async function fsRestoreFromFile() {
+  if (!FS_SUPPORTED) {
+    document.getElementById('importFile').click();
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'CashBook JSON', accept: { 'application/json': ['.json'] } }]
+    });
+    const file = await handle.getFile();
+    const text = await file.text();
+    const restored = JSON.parse(text);
+    if (!Array.isArray(restored.transactions)) throw new Error('Not a valid CashBook file');
+    if (!confirm('This will replace ALL current data with the backup file. Continue?')) return;
+    data = restored;
+    if (!data.denomSnapshots) data.denomSnapshots = [];
+    if (!data.securityCode) data.securityCode = '1234';
+    if (!data.nextId) data.nextId = (Math.max(0, ...data.transactions.map(t=>t.id||0)) + 1);
+    localStorage.setItem('cashbook_data', JSON.stringify(data));
+    _fsHandle = handle;
+    await _idbPut(FS_HANDLE_KEY, handle);
+    renderDashboard();
+    toast('✓ Restored from file — autosave re-linked');
+    renderBackupInfo();
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('✕ Restore failed');
+  }
+}
+
+// ---------- Privacy eye toggle ----------
+function maskAmount(text) {
+  return text.replace(/[0-9]/g, '*');
+}
+
+function toggleEye() {
+  if (privacyOn) {
+    requestSecurityCode(() => {
+      privacyOn = false;
+      localStorage.setItem('cashbook_privacy', '0');
+      renderDashboard();
+    });
+  } else {
+    privacyOn = true;
+    localStorage.setItem('cashbook_privacy', '1');
+    renderDashboard();
+  }
+}
+
+
+const DENOMS = [500, 200, 100, 50, 20, 10, 5, 2, 1];
+
+const todayStr = () => {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+};
+
+document.getElementById('entryDate').value = todayStr();
+document.getElementById('entryDate').max = todayStr();
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+function showPage(name, btn) {
+  if (name !== 'dashboard' && privacyOn) {
+    requestSecurityCode(() => goToPage(name, btn));
+    return;
+  }
+  goToPage(name, btn);
+}
+
+function goToPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'denom') renderDenom();
+  if (name === 'stats') { renderStats(); renderBackupInfo(); }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+document.getElementById('entryDate').addEventListener('change', () => {
+  const sel = document.getElementById('entryDate').value;
+  const warn = document.getElementById('dateWarn');
+  if (sel < todayStr()) {
+    warn.textContent = '⚠ Past date selected — security code required to save.';
+    warn.style.color = '#a07300';
+  } else if (sel > todayStr()) {
+    warn.textContent = '✕ Future dates are not allowed.';
+    warn.style.color = '#e76f51';
+  } else {
+    warn.textContent = '';
+  }
+});
+
+function addEntry() {
+  const date = document.getElementById('entryDate').value;
+  const type = document.getElementById('entryType').value;
+  const amount = parseFloat(document.getElementById('entryAmount').value);
+  const category = document.getElementById('entryCategory').value;
+  const note = document.getElementById('entryNote').value.trim();
+
+  if (!date) return toast('Select a date');
+  if (date > todayStr()) return toast('✕ Future date not allowed');
+  if (!amount || amount <= 0) return toast('Enter a valid amount');
+
+  const proceed = () => {
+    data.transactions.push({
+      id: data.nextId++,
+      date, type, amount, category, note,
+      createdAt: new Date().toISOString(),
+      pastDateEntry: date < todayStr()
+    });
+    save();
+    document.getElementById('entryAmount').value = '';
+    document.getElementById('entryNote').value = '';
+    renderDashboard();
+    toast('✓ Entry added');
+  };
+
+  if (date < todayStr()) {
+    requestSecurityCode(proceed);
+  } else {
+    proceed();
+  }
+}
+
+function deleteEntry(id) {
+  const tx = data.transactions.find(t => t.id === id);
+  if (!tx) return;
+  const proceed = () => {
+    data.transactions = data.transactions.filter(t => t.id !== id);
+    save();
+    renderDashboard();
+    renderHistory();
+    toast('Entry deleted');
+  };
+  if (tx.date < todayStr()) {
+    requestSecurityCode(proceed);
+  } else {
+    if (confirm('Delete this entry?')) proceed();
+  }
+}
+
+let pendingAction = null;
+function requestSecurityCode(callback) {
+  pendingAction = callback;
+  document.getElementById('lockScreen').style.display = 'flex';
+  document.getElementById('lockInput').value = '';
+  setTimeout(() => document.getElementById('lockInput').focus(), 100);
+}
+function checkLock() {
+  const val = document.getElementById('lockInput').value;
+  if (val === data.securityCode) {
+    document.getElementById('lockScreen').style.display = 'none';
+    if (pendingAction) pendingAction();
+    pendingAction = null;
+  } else {
+    toast('✕ Wrong code');
+  }
+}
+function cancelLock() {
+  document.getElementById('lockScreen').style.display = 'none';
+  pendingAction = null;
+}
+function changeSecurityCode() {
+  requestSecurityCode(() => {
+    const newCode = prompt('Enter new security code (numbers):');
+    if (newCode && newCode.trim().length >= 4) {
+      data.securityCode = newCode.trim();
+      save();
+      toast('🔑 Security code updated');
+    } else if (newCode !== null) {
+      toast('Code must be at least 4 digits');
+    }
+  });
+}
+
+function renderDashboard() {
+  const today = todayStr();
+  let totalIn = 0, totalOut = 0, todayIn = 0, todayOut = 0;
+  data.transactions.forEach(t => {
+    if (t.type === 'in') totalIn += t.amount; else totalOut += t.amount;
+    if (t.date === today) {
+      if (t.type === 'in') todayIn += t.amount; else todayOut += t.amount;
+    }
+  });
+  const netStr = '₹' + (totalIn - totalOut).toLocaleString('en-IN');
+  const inStr = '₹' + todayIn.toLocaleString('en-IN');
+  const outStr = '₹' + todayOut.toLocaleString('en-IN');
+  document.getElementById('netBalance').textContent = privacyOn ? maskAmount(netStr) : netStr;
+  document.getElementById('todayIn').textContent = privacyOn ? maskAmount(inStr) : inStr;
+  document.getElementById('todayOut').textContent = privacyOn ? maskAmount(outStr) : outStr;
+
+  const eyeBtn = document.getElementById('eyeToggle');
+  if (eyeBtn) eyeBtn.textContent = privacyOn ? '🙈' : '👁️';
+
+  const recent = [...data.transactions].sort((a,b) => (b.date+b.createdAt).localeCompare(a.date+a.createdAt)).slice(0, 8);
+  const list = document.getElementById('recentList');
+  list.innerHTML = recent.length ? '' : '<div class="empty">No transactions yet — add your first entry above.</div>';
+  recent.forEach(t => list.appendChild(txElement(t, privacyOn)));
+
+  renderBackupBanner();
+}
+
+function renderBackupBanner() {
+  const el = document.getElementById('backupBanner');
+  if (!el) return;
+  const last = localStorage.getItem('cashbook_last_backup');
+  let show = false, msg = '';
+  if (!last) {
+    show = true;
+    msg = '⚠ You have not downloaded a backup yet. Go to Stats → Download backup file to keep your data safe.';
+  } else {
+    const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+    if (days >= 3) {
+      show = true;
+      msg = `⚠ Your last backup was ${days} days ago. Download a fresh one from Stats page.`;
+    }
+  }
+  el.innerHTML = show ? `<div class="backup-banner">${msg}</div>` : '';
+}
+
+function txElement(t, mask) {
+  const div = document.createElement('div');
+  div.className = 'tx-item';
+  const dateFmt = new Date(t.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  const amtStr = (t.type==='in'?'+':'-') + '₹' + t.amount.toLocaleString('en-IN');
+  div.innerHTML = `
+    <div class="tx-left">
+      <div>${t.category}${t.note ? ' — '+escapeHtml(t.note) : ''}</div>
+      <div class="tx-note">
+        <span class="badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'IN':'OUT'}</span>
+        ${t.pastDateEntry ? '<span class="badge badge-edited">past</span>' : ''}
+        &nbsp;${dateFmt}
+      </div>
+    </div>
+    <div class="tx-amt ${t.type==='in'?'green':'red'}">${mask ? maskAmount(amtStr) : amtStr}</div>
+    <button class="tx-del" onclick="deleteEntry(${t.id})">✕</button>
+  `;
+  return div;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function populateMonthFilter() {
+  const months = new Set(data.transactions.map(t => t.date.slice(0,7)));
+  const sel = document.getElementById('filterMonth');
+  const current = sel.value;
+  sel.innerHTML = '<option value="all">All months</option>';
+  [...months].sort().reverse().forEach(m => {
+    const label = new Date(m + '-01').toLocaleDateString('en-IN', {month:'long', year:'numeric'});
+    sel.innerHTML += `<option value="${m}">${label}</option>`;
+  });
+  if ([...months].includes(current)) sel.value = current;
+}
+
+function populateCategoryFilter() {
+  const cats = new Set(data.transactions.map(t => t.category).filter(Boolean));
+  const sel = document.getElementById('filterCategory');
+  const current = sel.value;
+  sel.innerHTML = '<option value="all">All categories</option>';
+  [...cats].sort().forEach(c => {
+    sel.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+  });
+  if ([...cats].includes(current)) sel.value = current;
+}
+
+function renderHistory() {
+  populateMonthFilter();
+  populateCategoryFilter();
+  const month = document.getElementById('filterMonth').value;
+  const type = document.getElementById('filterType').value;
+  const cat = document.getElementById('filterCategory').value;
+  let list = [...data.transactions].sort((a,b) => (b.date+b.createdAt).localeCompare(a.date+a.createdAt));
+  if (month !== 'all') list = list.filter(t => t.date.startsWith(month));
+  if (type !== 'all') list = list.filter(t => t.type === type);
+  if (cat !== 'all') list = list.filter(t => t.category === cat);
+
+  let totalIn = 0, totalOut = 0;
+  list.forEach(t => { if (t.type==='in') totalIn += t.amount; else totalOut += t.amount; });
+  document.getElementById('filterIn').textContent = '₹' + totalIn.toLocaleString('en-IN');
+  document.getElementById('filterOut').textContent = '₹' + totalOut.toLocaleString('en-IN');
+
+  const container = document.getElementById('historyList');
+  container.innerHTML = list.length ? '' : '<div class="empty">No entries found for this filter.</div>';
+  list.forEach(t => container.appendChild(txElement(t)));
+}
+document.getElementById('filterMonth').addEventListener('change', renderHistory);
+document.getElementById('filterType').addEventListener('change', renderHistory);
+document.getElementById('filterCategory').addEventListener('change', renderHistory);
+
+function setQuickAmt(v) {
+  document.getElementById('entryAmount').value = v;
+  document.getElementById('entryAmount').focus();
+}
+
+function updateNoteSuggestions() {
+  const input = document.getElementById('entryNote').value.toLowerCase();
+  const dl = document.getElementById('noteSuggestions');
+  const seen = new Set();
+  const opts = [];
+  const allNotes = [...data.transactions]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map(t => t.note)
+    .filter(n => n && n.trim().length > 0);
+  for (const note of allNotes) {
+    const key = note.toLowerCase();
+    if (!seen.has(key) && (input === '' || key.includes(input))) {
+      seen.add(key);
+      opts.push(note);
+      if (opts.length >= 10) break;
+    }
+  }
+  dl.innerHTML = opts.map(n => `<option value="${escapeHtml(n)}">`).join('');
+}
+
+document.getElementById('entryNote').addEventListener('input', updateNoteSuggestions);
+document.getElementById('entryNote').addEventListener('focus', updateNoteSuggestions);
+
+function getCurrentDenomCounts() {
+  if (data.denomSnapshots.length === 0) {
+    const obj = {};
+    DENOMS.forEach(d => obj[d] = 0);
+    return obj;
+  }
+  return data.denomSnapshots[data.denomSnapshots.length - 1].counts;
+}
+
+function getCashBalance() {
+  let totalIn = 0, totalOut = 0;
+  data.transactions.forEach(t => { if (t.type==='in') totalIn += t.amount; else totalOut += t.amount; });
+  return totalIn - totalOut;
+}
+
+function renderDenom() {
+  const grid = document.getElementById('denomGrid');
+  const counts = getCurrentDenomCounts();
+  grid.innerHTML = '';
+  DENOMS.forEach(d => {
+    const box = document.createElement('div');
+    box.className = 'denom-box';
+    box.innerHTML = `
+      <div class="dval">₹${d}</div>
+      <input type="number" inputmode="numeric" min="0" id="denom_${d}" value="${counts[d]||0}" oninput="updateDenomTotal()">
+    `;
+    grid.appendChild(box);
+  });
+  updateDenomTotal();
+  renderDenomHistory();
+}
+
+function updateDenomTotal() {
+  let total = 0;
+  DENOMS.forEach(d => {
+    const val = parseInt(document.getElementById('denom_'+d).value) || 0;
+    total += val * d;
+  });
+  const target = getCashBalance();
+  document.getElementById('denomTotal').textContent = '₹' + total.toLocaleString('en-IN');
+  document.getElementById('denomTarget').textContent = '₹' + target.toLocaleString('en-IN');
+  const diff = total - target;
+  const diffEl = document.getElementById('denomDiff');
+  if (diff === 0) {
+    diffEl.textContent = '✓ Matches your cash balance perfectly';
+    diffEl.className = 'diff-warn diff-ok';
+  } else {
+    diffEl.textContent = `Mismatch: ${diff > 0 ? '+' : ''}₹${diff.toLocaleString('en-IN')} — adjust note counts to match`;
+    diffEl.className = 'diff-warn diff-bad';
+  }
+}
+
+function saveDenom() {
+  const counts = {};
+  let total = 0;
+  DENOMS.forEach(d => {
+    const val = parseInt(document.getElementById('denom_'+d).value) || 0;
+    counts[d] = val;
+    total += val * d;
+  });
+  const target = getCashBalance();
+  if (total !== target) {
+    if (!confirm(`Denomination total (₹${total}) doesn't match your cash balance (₹${target}). Save anyway?`)) return;
+  }
+  data.denomSnapshots.push({
+    date: todayStr(),
+    timestamp: new Date().toISOString(),
+    counts, total
+  });
+  save();
+  renderDenomHistory();
+  toast('✓ Denomination saved');
+}
+
+function renderDenomHistory() {
+  const container = document.getElementById('denomHistory');
+  if (data.denomSnapshots.length === 0) {
+    container.innerHTML = '<div class="empty">No snapshots yet.</div>';
+    return;
+  }
+  const list = [...data.denomSnapshots].reverse();
+  container.innerHTML = '';
+  list.forEach((snap) => {
+    const div = document.createElement('div');
+    div.className = 'tx-item';
+    div.style.display = 'block';
+    const breakdown = DENOMS.filter(d => snap.counts[d] > 0).map(d => `₹${d}×${snap.counts[d]}`).join(', ');
+    const dateFmt = new Date(snap.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between;">
+        <strong>${dateFmt}</strong>
+        <span class="gold" style="font-weight:800;">₹${snap.total.toLocaleString('en-IN')}</span>
+      </div>
+      <div class="tx-note" style="margin-top:4px;">${breakdown || 'No notes recorded'}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderStats() {
+  let totalIn = 0, totalOut = 0;
+  const categoryTotals = {};
+  const dayTotals = {};
+  let edited = 0;
+
+  data.transactions.forEach(t => {
+    if (t.type === 'in') totalIn += t.amount; else totalOut += t.amount;
+    if (t.pastDateEntry) edited++;
+    if (t.type === 'out') categoryTotals[t.category] = (categoryTotals[t.category]||0) + t.amount;
+    if (!dayTotals[t.date]) dayTotals[t.date] = {in:0, out:0};
+    dayTotals[t.date][t.type] += t.amount;
+  });
+
+  document.getElementById('statTotalIn').textContent = '₹' + totalIn.toLocaleString('en-IN');
+  document.getElementById('statTotalOut').textContent = '₹' + totalOut.toLocaleString('en-IN');
+  document.getElementById('statNet').textContent = '₹' + (totalIn-totalOut).toLocaleString('en-IN');
+  document.getElementById('statCount').textContent = data.transactions.length;
+  document.getElementById('statEdited').textContent = edited;
+
+  const ym = todayStr().slice(0,7);
+  let mIn=0, mOut=0;
+  const daysInMonthSoFar = new Date().getDate();
+  data.transactions.forEach(t => {
+    if (t.date.startsWith(ym)) {
+      if (t.type==='in') mIn += t.amount; else mOut += t.amount;
+    }
+  });
+  document.getElementById('monthIn').textContent = '₹' + mIn.toLocaleString('en-IN');
+  document.getElementById('monthOut').textContent = '₹' + mOut.toLocaleString('en-IN');
+  document.getElementById('monthNet').textContent = '₹' + (mIn-mOut).toLocaleString('en-IN');
+  document.getElementById('monthAvgIn').textContent = '₹' + Math.round(mIn/daysInMonthSoFar).toLocaleString('en-IN');
+  document.getElementById('monthAvgOut').textContent = '₹' + Math.round(mOut/daysInMonthSoFar).toLocaleString('en-IN');
+
+  const topCats = Object.entries(categoryTotals).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const topContainer = document.getElementById('topCategories');
+  topContainer.innerHTML = topCats.length ? '' : '<div class="empty">No expense data yet.</div>';
+  topCats.forEach(([cat, amt]) => {
+    const div = document.createElement('div');
+    div.className = 'stat-row';
+    div.innerHTML = `<span>${cat}</span><span class="v red">₹${amt.toLocaleString('en-IN')}</span>`;
+    topContainer.appendChild(div);
+  });
+
+  let bestDay = null, bestIn = -1, worstDay = null, worstOut = -1;
+  Object.entries(dayTotals).forEach(([date, v]) => {
+    if (v.in > bestIn) { bestIn = v.in; bestDay = date; }
+    if (v.out > worstOut) { worstOut = v.out; worstDay = date; }
+  });
+  document.getElementById('bestDay').textContent = bestDay ? `${fmtDate(bestDay)} (₹${bestIn.toLocaleString('en-IN')})` : '-';
+  document.getElementById('worstDay').textContent = worstDay ? `${fmtDate(worstDay)} (₹${worstOut.toLocaleString('en-IN')})` : '-';
+}
+
+function fmtDate(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cashbook_backup_' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('cashbook_last_backup', new Date().toISOString());
+  toast('✓ Backup downloaded');
+  renderBackupInfo();
+}
+
+function renderBackupInfo() {
+  const el = document.getElementById('lastBackupInfo');
+  if (!el) return;
+  const last = localStorage.getItem('cashbook_last_backup');
+  let html = '';
+  if (!FS_SUPPORTED) {
+    html += `<div style="color:var(--ink-soft)">Auto-backup not supported in this browser. Use manual download/restore.</div>`;
+  } else if (_fsHandle) {
+    html += `<div style="color:var(--green)">✓ Linked — autosaving on every change.</div>`;
+  } else {
+    html += `<div style="color:#a07300">⚠ No backup file linked yet.</div>`;
+  }
+  if (last) {
+    const d = new Date(last);
+    const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    const when = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    html += `<div style="margin-top:4px;">Last saved: ${when}${days>=1 ? ' ('+days+'d ago)' : ''}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (confirm('This will replace ALL current data with the backup. Continue?')) {
+        data = imported;
+        save();
+        renderDashboard();
+        toast('✓ Data restored');
+      }
+    } catch (err) {
+      toast('✕ Invalid backup file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAll() {
+  requestSecurityCode(() => {
+    if (confirm('This will permanently delete ALL data. Are you absolutely sure?')) {
+      data = { transactions: [], denomSnapshots: [], securityCode: data.securityCode, nextId: 1 };
+      save();
+      renderDashboard();
+      toast('All data reset');
+    }
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+fsInit();
+renderDashboard();
+</script>
+</body>
+</html>
