@@ -202,6 +202,97 @@
 
   ::placeholder{color:#c4b8a0;}
   select#entryType{font-weight:700;}
+
+  /* ── INCOME CALENDAR HEATMAP ───────────────────────────── */
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-nav button{background:var(--gold-bg);color:var(--gold);border:1px solid #f3e3b8;border-radius:8px;
+    width:32px;height:32px;font-size:16px;padding:0;margin:0;display:flex;align-items:center;justify-content:center;font-weight:800;}
+  .cal-month-label{font-size:15px;font-weight:800;color:var(--ink);font-family:Georgia,serif;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{font-size:9px;font-weight:700;color:var(--ink-soft);text-align:center;padding-bottom:4px;text-transform:uppercase;}
+  .cal-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;cursor:default;position:relative;transition:transform 0.1s;}
+  .cal-cell:active{transform:scale(0.92);}
+  .cal-cell.empty{background:transparent;}
+  .cal-cell.no-data{background:#f5f0e8;color:#c4b8a0;}
+  .cal-cell.future{background:#f5f0e8;color:#ddd;}
+  .cal-cell.has-data{color:#fff;}
+  .cal-cell.today-cell{box-shadow:0 0 0 2px var(--teal);}
+  .cal-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--ink-soft);font-weight:600;}
+  .cal-legend-boxes{display:flex;gap:3px;}
+  .cal-legend-box{width:14px;height:14px;border-radius:3px;}
+  .cal-tooltip{font-size:11px;color:var(--ink-soft);margin-top:8px;text-align:center;min-height:16px;font-weight:600;}
+
+  /* ── MILESTONES ─────────────────────────────────────────── */
+  .milestone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .milestone-badge{border-radius:12px;padding:10px 6px;text-align:center;position:relative;transition:transform 0.15s;}
+  .milestone-badge.unlocked{background:linear-gradient(135deg,#fff7e0,#ffedb3);border:1px solid #f3e3b8;}
+  .milestone-badge.locked{background:#f5f0e8;border:1px solid #ece8e0;opacity:0.6;}
+  .milestone-badge .m-icon{font-size:26px;line-height:1;}
+  .milestone-badge .m-name{font-size:9.5px;font-weight:700;color:var(--ink);margin-top:5px;line-height:1.2;}
+  .milestone-badge .m-desc{font-size:8.5px;color:var(--ink-soft);margin-top:2px;line-height:1.2;}
+  .milestone-badge.locked .m-icon{filter:grayscale(1);}
+  .milestone-new{position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;
+    font-size:8px;font-weight:800;border-radius:6px;padding:2px 5px;letter-spacing:0.3px;}
+
+  /* ── DAILY GOAL ──────────────────────────────────────────── */
+  .goal-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:6px 0;}
+  .goal-ring-svg{width:120px;height:120px;}
+  .goal-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;}
+  .goal-stat{text-align:center;background:var(--gold-bg);border-radius:10px;padding:10px 6px;}
+  .goal-stat .gs-val{font-size:18px;font-weight:900;color:var(--gold);}
+  .goal-stat .gs-lbl{font-size:9.5px;color:var(--ink-soft);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:0.4px;}
+  .goal-input-row{display:flex;gap:8px;align-items:center;margin-top:10px;}
+  .goal-input-row input{flex:1;font-size:14px;}
+  .goal-input-row button{width:auto;margin:0;padding:12px 16px;font-size:13px;flex-shrink:0;}
+
+
+  /* 7-day bar chart */
+  .bar-chart{display:flex;align-items:flex-end;gap:5px;height:90px;margin-top:12px;padding:0 2px;}
+  .bar-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .bar-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;justify-content:flex-end;}
+  .bar-in{width:42%;border-radius:4px 4px 0 0;background:var(--green);opacity:0.85;min-height:2px;transition:height 0.4s;}
+  .bar-out{width:42%;border-radius:4px 4px 0 0;background:var(--coral);opacity:0.85;min-height:2px;transition:height 0.4s;}
+  .bar-pair{display:flex;gap:2px;align-items:flex-end;width:100%;justify-content:center;flex:1;}
+  .bar-label{font-size:9.5px;color:var(--ink-soft);font-weight:600;margin-top:3px;white-space:nowrap;}
+  .bar-legend{display:flex;gap:14px;margin-top:8px;font-size:11px;font-weight:600;color:var(--ink-soft);}
+  .bar-legend span{display:flex;align-items:center;gap:5px;}
+  .bar-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;}
+
+  /* Streak */
+  .streak-box{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#fff7e6,#fff3d6);border-radius:12px;padding:14px;border:1px solid #f3e3b8;}
+  .streak-flame{font-size:38px;line-height:1;}
+  .streak-info .big{font-size:28px;font-weight:900;color:var(--gold);font-family:Georgia,serif;}
+  .streak-info .sub{font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
+
+  /* Gauge */
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0 4px;}
+  .gauge-svg{width:160px;height:86px;overflow:visible;}
+  .gauge-label{font-size:13px;font-weight:700;margin-top:4px;text-align:center;}
+  .gauge-sub{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:2px;}
+
+  /* Insights */
+  .insight-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--paper-line);}
+  .insight-item:last-child{border-bottom:none;}
+  .insight-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+  .insight-text{font-size:13px;line-height:1.5;color:var(--ink);}
+  .insight-text strong{color:var(--ink);display:block;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;opacity:0.6;margin-bottom:2px;}
+
+  /* Weekly comparison */
+  .week-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+  .week-box{border-radius:12px;padding:12px;text-align:center;}
+  .week-box .wlabel{font-size:10px;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;}
+  .week-box .wval{font-size:19px;font-weight:800;margin-top:4px;}
+  .week-box .wdelta{font-size:11.5px;font-weight:700;margin-top:3px;}
+  .delta-up{color:var(--green);}
+  .delta-down{color:var(--coral);}
+  .delta-same{color:var(--ink-soft);}
+
+  /* Category bar */
+  .cat-bar-row{margin-bottom:9px;}
+  .cat-bar-top{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:4px;}
+  .cat-bar-track{height:8px;background:#f3ede0;border-radius:8px;overflow:hidden;}
+  .cat-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--coral),#f4a261);transition:width 0.5s;}
 </style>
 </head>
 <body>
@@ -367,6 +458,121 @@
 
   <!-- STATS -->
   <div class="page" id="page-stats">
+
+    <!-- Smart Insights -->
+    <div class="card">
+      <h2>💡 Smart Insights</h2>
+      <div id="smartInsights"><div class="empty">Add some transactions to see insights.</div></div>
+    </div>
+
+    <!-- Income Streak + Profit Gauge -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="card" style="margin-bottom:0;">
+        <h2>🔥 Income Streak</h2>
+        <div class="streak-box">
+          <div class="streak-flame" id="streakFlame">🔥</div>
+          <div class="streak-info">
+            <div class="big" id="streakCount">0</div>
+            <div class="sub" id="streakLabel">days in a row</div>
+          </div>
+        </div>
+        <div class="stat-row" style="margin-top:10px;font-size:12px;">
+          <span>Best streak</span><span class="v gold" id="bestStreak">0 days</span>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <h2>📊 Profit Ratio</h2>
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 160 86">
+            <path d="M20 80 A60 60 0 0 1 140 80" fill="none" stroke="#f3ede0" stroke-width="14" stroke-linecap="round"/>
+            <path id="gaugeArc" d="M20 80 A60 60 0 0 1 140 80" fill="none" stroke="var(--green)" stroke-width="14" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+            <text id="gaugeText" x="80" y="78" text-anchor="middle" font-size="20" font-weight="900" fill="var(--ink)" font-family="Georgia,serif">0%</text>
+          </svg>
+          <div class="gauge-label" id="gaugeLabel">No data</div>
+          <div class="gauge-sub" id="gaugeSub">Income kept after expenses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7-day bar chart -->
+    <div class="card">
+      <h2>📅 Last 7 Days</h2>
+      <div class="bar-chart" id="barChart"></div>
+      <div class="bar-legend">
+        <span><i style="background:var(--green);"></i> Income</span>
+        <span><i style="background:var(--coral);"></i> Expense</span>
+      </div>
+    </div>
+
+    <!-- Income Calendar Heatmap -->
+    <div class="card">
+      <h2>🗓️ Income Calendar</h2>
+      <div class="cal-nav">
+        <button onclick="calPrev()">‹</button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid" id="calDowRow"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span>Less</span>
+        <div class="cal-legend-boxes" id="calLegend"></div>
+        <span>More</span>
+      </div>
+      <div class="cal-tooltip" id="calTooltip">Tap a day to see details</div>
+    </div>
+
+    <!-- Daily Income Goal -->
+    <div class="card">
+      <h2>🎯 Daily Income Goal</h2>
+      <div class="goal-ring-wrap">
+        <svg class="goal-ring-svg" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="#f3ede0" stroke-width="12"/>
+          <circle id="goalRing" cx="60" cy="60" r="48" fill="none" stroke="var(--green)"
+            stroke-width="12" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"
+            transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 0.6s;"/>
+          <text x="60" y="56" text-anchor="middle" font-size="18" font-weight="900" fill="var(--ink)" id="goalPctText">0%</text>
+          <text x="60" y="71" text-anchor="middle" font-size="9" fill="var(--ink-soft)" id="goalSubText">of today's goal</text>
+        </svg>
+      </div>
+      <div class="goal-stats-grid">
+        <div class="goal-stat"><div class="gs-val" id="goalDaysHit">0</div><div class="gs-lbl">Days hit 🎯</div></div>
+        <div class="goal-stat"><div class="gs-val" id="goalThisMonth">0</div><div class="gs-lbl">This month</div></div>
+        <div class="goal-stat"><div class="gs-val" id="goalHitRate">0%</div><div class="gs-lbl">Hit rate</div></div>
+      </div>
+      <div class="goal-input-row">
+        <input type="number" id="goalInput" inputmode="decimal" placeholder="Set daily goal (₹)">
+        <button class="btn-primary" onclick="saveGoal()">Set</button>
+      </div>
+      <div class="small-note" id="goalNote"></div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="card">
+      <h2>🏆 Milestones</h2>
+      <div class="milestone-grid" id="milestoneGrid"></div>
+      <div class="small-note" style="margin-top:10px;" id="milestoneNote"></div>
+    </div>
+
+    <div class="card">
+      <h2>📆 This Week vs Last Week</h2>
+      <div class="week-grid">
+        <div class="week-box" style="background:var(--green-bg);">
+          <div class="wlabel">Income</div>
+          <div class="wval green" id="weekInThis">₹0</div>
+          <div class="wdelta" id="weekInDelta">—</div>
+        </div>
+        <div class="week-box" style="background:var(--coral-bg);">
+          <div class="wlabel">Expense</div>
+          <div class="wval red" id="weekOutThis">₹0</div>
+          <div class="wdelta" id="weekOutDelta">—</div>
+        </div>
+      </div>
+      <div class="stat-row" style="margin-top:10px;">
+        <span>This week net</span><span class="v teal" id="weekNet">₹0</span>
+      </div>
+    </div>
+
     <div class="card">
       <h2>Overview</h2>
       <div class="stat-row"><span>Total income (all time)</span><span class="v green" id="statTotalIn">₹0</span></div>
@@ -386,12 +592,12 @@
     </div>
 
     <div class="card">
-      <h2>Top expense categories (all time)</h2>
+      <h2>Top expense categories</h2>
       <div id="topCategories"></div>
     </div>
 
     <div class="card">
-      <h2>Best & worst days</h2>
+      <h2>Best &amp; worst days</h2>
       <div class="stat-row"><span>Highest income day</span><span class="v green" id="bestDay">-</span></div>
       <div class="stat-row"><span>Highest expense day</span><span class="v red" id="worstDay">-</span></div>
     </div>
@@ -1051,13 +1257,19 @@ function renderStats() {
   document.getElementById('monthAvgIn').textContent = '₹' + Math.round(mIn/daysInMonthSoFar).toLocaleString('en-IN');
   document.getElementById('monthAvgOut').textContent = '₹' + Math.round(mOut/daysInMonthSoFar).toLocaleString('en-IN');
 
+  // Top categories — enhanced with progress bars
   const topCats = Object.entries(categoryTotals).sort((a,b) => b[1]-a[1]).slice(0,5);
   const topContainer = document.getElementById('topCategories');
   topContainer.innerHTML = topCats.length ? '' : '<div class="empty">No expense data yet.</div>';
+  const maxCatAmt = topCats[0]?.[1] || 1;
   topCats.forEach(([cat, amt]) => {
+    const pct = Math.round((amt / maxCatAmt) * 100);
     const div = document.createElement('div');
-    div.className = 'stat-row';
-    div.innerHTML = `<span>${cat}</span><span class="v red">₹${amt.toLocaleString('en-IN')}</span>`;
+    div.className = 'cat-bar-row';
+    div.innerHTML = `
+      <div class="cat-bar-top"><span>${cat}</span><span class="red" style="font-weight:800;">₹${amt.toLocaleString('en-IN')}</span></div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;"></div></div>
+    `;
     topContainer.appendChild(div);
   });
 
@@ -1068,6 +1280,468 @@ function renderStats() {
   });
   document.getElementById('bestDay').textContent = bestDay ? `${fmtDate(bestDay)} (₹${bestIn.toLocaleString('en-IN')})` : '-';
   document.getElementById('worstDay').textContent = worstDay ? `${fmtDate(worstDay)} (₹${worstOut.toLocaleString('en-IN')})` : '-';
+
+  // ─── NEW: 7-day bar chart ──────────────────────────────────
+  renderBarChart(dayTotals);
+
+  // ─── NEW: Income streak ────────────────────────────────────
+  renderStreak(dayTotals);
+
+  // ─── NEW: Profit gauge ────────────────────────────────────
+  renderGauge(totalIn, totalOut);
+
+  // ─── NEW: Weekly comparison ───────────────────────────────
+  renderWeekComparison(dayTotals);
+
+  // ─── NEW: Smart insights ──────────────────────────────────
+  renderInsights(totalIn, totalOut, categoryTotals, dayTotals, mIn, mOut);
+
+  // ─── NEW: Calendar heatmap ────────────────────────────────
+  renderCalendar();
+
+  // ─── NEW: Daily goal ──────────────────────────────────────
+  renderGoal();
+
+  // ─── NEW: Milestones ──────────────────────────────────────
+  renderMilestones();
+}
+
+/* ══════════════════════════════════════════════════════════
+   INCOME CALENDAR HEATMAP
+══════════════════════════════════════════════════════════ */
+let _calYear = new Date().getFullYear();
+let _calMonth = new Date().getMonth(); // 0-indexed
+
+function calPrev() {
+  _calMonth--;
+  if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+  renderCalendar();
+}
+function calNext() {
+  const now = new Date();
+  if (_calYear > now.getFullYear() || (_calYear === now.getFullYear() && _calMonth >= now.getMonth())) return;
+  _calMonth++;
+  if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const todayKey = todayStr();
+  // Build day→income map
+  const dayIncome = {};
+  data.transactions.forEach(t => {
+    if (t.type === 'in') dayIncome[t.date] = (dayIncome[t.date] || 0) + t.amount;
+  });
+
+  const monthKey = _calYear + '-' + String(_calMonth + 1).padStart(2, '0');
+  const label = new Date(_calYear, _calMonth, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  document.getElementById('calMonthLabel').textContent = label;
+
+  // DOW headers (Mon first)
+  const dowRow = document.getElementById('calDowRow');
+  const dows = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  dowRow.innerHTML = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // Values for color scale
+  const daysInMonth = new Date(_calYear, _calMonth + 1, 0).getDate();
+  const vals = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const k = monthKey + '-' + String(d).padStart(2, '0');
+    if (dayIncome[k]) vals.push(dayIncome[k]);
+  }
+  const maxVal = vals.length ? Math.max(...vals) : 1;
+
+  // Color scale: 5 shades of teal/green
+  const shades = ['#c8f0e8', '#7dd8c8', '#35b89e', '#1f8a8a', '#155f5f'];
+  function getShade(inc) {
+    if (!inc) return null;
+    const idx = Math.min(4, Math.floor((inc / maxVal) * 4.99));
+    return shades[idx];
+  }
+
+  // Legend
+  const legEl = document.getElementById('calLegend');
+  legEl.innerHTML = shades.map(s => `<div class="cal-legend-box" style="background:${s};"></div>`).join('');
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const firstDow = new Date(_calYear, _calMonth, 1).getDay(); // 0=Sun
+  const offset = (firstDow + 6) % 7; // Mon=0
+
+  for (let i = 0; i < offset; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell empty';
+    grid.appendChild(cell);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const k = monthKey + '-' + String(d).padStart(2, '0');
+    const inc = dayIncome[k] || 0;
+    const isFuture = k > todayKey;
+    const isToday = k === todayKey;
+    const shade = getShade(inc);
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (isFuture ? ' future' : shade ? ' has-data' : ' no-data') + (isToday ? ' today-cell' : '');
+    if (shade && !isFuture) cell.style.background = shade;
+    cell.textContent = d;
+    cell.addEventListener('click', () => {
+      const tip = document.getElementById('calTooltip');
+      if (isFuture) { tip.textContent = 'Future date'; return; }
+      const dateFmt = new Date(k + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      if (inc) {
+        tip.textContent = `${dateFmt}: ₹${inc.toLocaleString('en-IN')} income`;
+        tip.style.color = 'var(--teal)';
+      } else {
+        tip.textContent = `${dateFmt}: No income recorded`;
+        tip.style.color = 'var(--ink-soft)';
+      }
+    });
+    grid.appendChild(cell);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   DAILY INCOME GOAL
+══════════════════════════════════════════════════════════ */
+function saveGoal() {
+  const val = parseFloat(document.getElementById('goalInput').value);
+  if (!val || val <= 0) return toast('Enter a valid goal amount');
+  localStorage.setItem('cashbook_daily_goal', val);
+  document.getElementById('goalInput').value = '';
+  renderGoal();
+  toast('🎯 Goal set to ₹' + val.toLocaleString('en-IN'));
+}
+
+function renderGoal() {
+  const goal = parseFloat(localStorage.getItem('cashbook_daily_goal')) || 0;
+  const todayKey = todayStr();
+  const ym = todayKey.slice(0, 7);
+
+  // Today's income
+  let todayIn = 0;
+  data.transactions.forEach(t => {
+    if (t.type === 'in' && t.date === todayKey) todayIn += t.amount;
+  });
+
+  // Goal ring
+  const ring = document.getElementById('goalRing');
+  const pctText = document.getElementById('goalPctText');
+  const subText = document.getElementById('goalSubText');
+
+  if (!goal) {
+    ring.setAttribute('stroke-dashoffset', 301.6);
+    pctText.textContent = '—';
+    subText.textContent = 'no goal set';
+    document.getElementById('goalNote').textContent = 'Set a daily income target above to track your performance.';
+    document.getElementById('goalDaysHit').textContent = '—';
+    document.getElementById('goalThisMonth').textContent = '—';
+    document.getElementById('goalHitRate').textContent = '—';
+    return;
+  }
+
+  const pct = Math.min(1, todayIn / goal);
+  const offset = 301.6 * (1 - pct);
+  ring.setAttribute('stroke-dashoffset', offset);
+  const pctDisp = Math.round(pct * 100);
+  ring.setAttribute('stroke', pct >= 1 ? 'var(--green)' : pct >= 0.6 ? 'var(--gold)' : 'var(--coral)');
+  pctText.textContent = pctDisp + '%';
+  pctText.setAttribute('fill', pct >= 1 ? 'var(--green)' : pct >= 0.6 ? 'var(--gold)' : 'var(--coral)');
+  subText.textContent = pct >= 1 ? '🎉 Goal hit!' : 'of ₹' + goal.toLocaleString('en-IN') + ' goal';
+
+  // Stats: days hit this month
+  const dayIncome = {};
+  data.transactions.forEach(t => {
+    if (t.type === 'in') dayIncome[t.date] = (dayIncome[t.date] || 0) + t.amount;
+  });
+  let daysHitAllTime = 0, daysHitMonth = 0, totalDaysWithData = 0, monthDays = 0;
+  const now = new Date();
+  Object.entries(dayIncome).forEach(([k, v]) => {
+    totalDaysWithData++;
+    if (v >= goal) daysHitAllTime++;
+    if (k.startsWith(ym) && k <= todayKey) {
+      monthDays++;
+      if (v >= goal) daysHitMonth++;
+    }
+  });
+  const hitRate = totalDaysWithData > 0 ? Math.round((daysHitAllTime / totalDaysWithData) * 100) : 0;
+
+  document.getElementById('goalDaysHit').textContent = daysHitAllTime;
+  document.getElementById('goalThisMonth').textContent = daysHitMonth + '/' + monthDays;
+  document.getElementById('goalHitRate').textContent = hitRate + '%';
+  const remaining = Math.max(0, goal - todayIn);
+  document.getElementById('goalNote').textContent = remaining > 0
+    ? `₹${remaining.toLocaleString('en-IN')} more needed today to hit your goal`
+    : `✓ Today's goal achieved! You earned ₹${todayIn.toLocaleString('en-IN')}`;
+  const goalInput = document.getElementById('goalInput');
+  if (goalInput && !goalInput.value) goalInput.placeholder = `Current: ₹${goal.toLocaleString('en-IN')}`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MILESTONES / BADGES
+══════════════════════════════════════════════════════════ */
+function renderMilestones() {
+  const dayIncome = {};
+  data.transactions.forEach(t => {
+    if (t.type === 'in') dayIncome[t.date] = (dayIncome[t.date] || 0) + t.amount;
+  });
+
+  const totalIn = data.transactions.filter(t => t.type === 'in').reduce((s, t) => s + t.amount, 0);
+  const txCount = data.transactions.filter(t => t.type === 'in').length;
+  const dayVals = Object.values(dayIncome);
+  const maxDay = dayVals.length ? Math.max(...dayVals) : 0;
+  const totalDays = dayVals.length;
+
+  // Streak calc
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (dayIncome[k] > 0) streak++; else break;
+  }
+
+  const MILESTONES = [
+    { icon:'🌱', name:'First Entry',   desc:'Log your 1st income',   check: () => txCount >= 1 },
+    { icon:'⚡', name:'Quick 5',       desc:'5 income entries',       check: () => txCount >= 5 },
+    { icon:'💼', name:'Pro Logger',    desc:'50 income entries',      check: () => txCount >= 50 },
+    { icon:'🏅', name:'Century',       desc:'100 income entries',     check: () => txCount >= 100 },
+    { icon:'🌅', name:'7-Day Run',     desc:'7-day income streak',    check: () => streak >= 7 },
+    { icon:'🔥', name:'On Fire',       desc:'30-day streak',          check: () => streak >= 30 },
+    { icon:'💰', name:'₹1K Day',       desc:'₹1,000 in one day',      check: () => maxDay >= 1000 },
+    { icon:'💎', name:'₹5K Day',       desc:'₹5,000 in one day',      check: () => maxDay >= 5000 },
+    { icon:'🚀', name:'₹10K Day',      desc:'₹10,000 in one day',     check: () => maxDay >= 10000 },
+    { icon:'🌟', name:'₹10K Total',    desc:'₹10K all-time income',   check: () => totalIn >= 10000 },
+    { icon:'👑', name:'₹1L Club',      desc:'₹1 Lakh total income',   check: () => totalIn >= 100000 },
+    { icon:'🏆', name:'30-Day Pro',    desc:'Income on 30+ days',     check: () => totalDays >= 30 },
+  ];
+
+  const seen = JSON.parse(localStorage.getItem('cashbook_milestones_seen') || '[]');
+  const grid = document.getElementById('milestoneGrid');
+  grid.innerHTML = '';
+  let newCount = 0;
+
+  MILESTONES.forEach(m => {
+    const unlocked = m.check();
+    const isNew = unlocked && !seen.includes(m.name);
+    if (isNew) newCount++;
+    const div = document.createElement('div');
+    div.className = 'milestone-badge ' + (unlocked ? 'unlocked' : 'locked');
+    div.innerHTML = `
+      ${isNew ? '<span class="milestone-new">NEW</span>' : ''}
+      <div class="m-icon">${m.icon}</div>
+      <div class="m-name">${m.name}</div>
+      <div class="m-desc">${m.desc}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  // Mark all unlocked as seen
+  const nowSeen = MILESTONES.filter(m => m.check()).map(m => m.name);
+  localStorage.setItem('cashbook_milestones_seen', JSON.stringify(nowSeen));
+
+  const unlockedCount = MILESTONES.filter(m => m.check()).length;
+  document.getElementById('milestoneNote').textContent =
+    `${unlockedCount} of ${MILESTONES.length} unlocked${newCount > 0 ? ` · ${newCount} new! 🎉` : ''}`;
+}
+function renderBarChart(dayTotals) {
+  const chart = document.getElementById('barChart');
+  chart.innerHTML = '';
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const label = d.toLocaleDateString('en-IN', {weekday:'short'}).slice(0,2);
+    days.push({ key, label, in: dayTotals[key]?.in || 0, out: dayTotals[key]?.out || 0 });
+  }
+  const maxVal = Math.max(...days.map(d => Math.max(d.in, d.out)), 1);
+  const H = 74; // max bar height in px
+  days.forEach(d => {
+    const inH = Math.max(Math.round((d.in / maxVal) * H), d.in > 0 ? 3 : 0);
+    const outH = Math.max(Math.round((d.out / maxVal) * H), d.out > 0 ? 3 : 0);
+    const isToday = d.key === todayStr();
+    const col = document.createElement('div');
+    col.className = 'bar-day';
+    col.innerHTML = `
+      <div class="bar-pair" style="height:${H}px;">
+        <div class="bar-in" style="height:${inH}px;" title="Income ₹${d.in.toLocaleString('en-IN')}"></div>
+        <div class="bar-out" style="height:${outH}px;" title="Expense ₹${d.out.toLocaleString('en-IN')}"></div>
+      </div>
+      <div class="bar-label" style="${isToday?'color:var(--teal);font-weight:800;':''}">${d.label}</div>
+    `;
+    chart.appendChild(col);
+  });
+}
+
+/* ── Income streak ─────────────────────────────────────────── */
+function renderStreak(dayTotals) {
+  // current streak: consecutive days ending today where income > 0
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (dayTotals[key]?.in > 0) { streak++; } else { break; }
+  }
+
+  // best streak ever
+  const allDays = Object.keys(dayTotals).filter(k => dayTotals[k].in > 0).sort();
+  let best = 0, cur = 0, prevKey = null;
+  allDays.forEach(k => {
+    if (prevKey) {
+      const prev = new Date(prevKey + 'T00:00:00');
+      const curr = new Date(k + 'T00:00:00');
+      const diff = Math.round((curr - prev) / 86400000);
+      if (diff === 1) { cur++; } else { cur = 1; }
+    } else { cur = 1; }
+    if (cur > best) best = cur;
+    prevKey = k;
+  });
+
+  document.getElementById('streakCount').textContent = streak;
+  document.getElementById('bestStreak').textContent = best + ' days';
+  const flame = streak === 0 ? '🌱' : streak < 3 ? '🔥' : streak < 7 ? '🔥🔥' : '🔥🔥🔥';
+  document.getElementById('streakFlame').textContent = flame;
+  const labels = ['No income today', 'Keep it going!', 'On a roll!', 'Unstoppable!', 'Legendary streak!'];
+  document.getElementById('streakLabel').textContent = streak === 0 ? labels[0] : streak < 3 ? labels[1] : streak < 7 ? labels[2] : streak < 14 ? labels[3] : labels[4];
+}
+
+/* ── Profit gauge ──────────────────────────────────────────── */
+function renderGauge(totalIn, totalOut) {
+  const ratio = totalIn > 0 ? Math.max(0, Math.min(1, (totalIn - totalOut) / totalIn)) : 0;
+  const pct = Math.round(ratio * 100);
+  // Arc: full arc dasharray=188.5, offset = 188.5 * (1 - ratio)
+  const arc = document.getElementById('gaugeArc');
+  const offset = 188.5 * (1 - ratio);
+  arc.setAttribute('stroke-dashoffset', offset);
+  const color = pct >= 60 ? 'var(--green)' : pct >= 30 ? 'var(--gold)' : 'var(--coral)';
+  arc.setAttribute('stroke', color);
+  document.getElementById('gaugeText').textContent = pct + '%';
+  document.getElementById('gaugeText').setAttribute('fill', color);
+  const label = pct >= 70 ? 'Excellent' : pct >= 50 ? 'Healthy' : pct >= 30 ? 'Average' : pct > 0 ? 'Tight' : 'No data';
+  document.getElementById('gaugeLabel').textContent = label;
+  document.getElementById('gaugeLabel').style.color = color;
+}
+
+/* ── Weekly comparison ─────────────────────────────────────── */
+function renderWeekComparison(dayTotals) {
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun
+  // start of this week (Mon)
+  const startThis = new Date(today);
+  startThis.setDate(today.getDate() - ((dow + 6) % 7));
+  const startLast = new Date(startThis);
+  startLast.setDate(startThis.getDate() - 7);
+
+  let thisIn=0, thisOut=0, lastIn=0, lastOut=0;
+  for (let i = 0; i < 7; i++) {
+    const d1 = new Date(startThis); d1.setDate(startThis.getDate() + i);
+    const k1 = d1.getFullYear()+'-'+String(d1.getMonth()+1).padStart(2,'0')+'-'+String(d1.getDate()).padStart(2,'0');
+    thisIn += dayTotals[k1]?.in || 0;
+    thisOut += dayTotals[k1]?.out || 0;
+    const d2 = new Date(startLast); d2.setDate(startLast.getDate() + i);
+    const k2 = d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+    lastIn += dayTotals[k2]?.in || 0;
+    lastOut += dayTotals[k2]?.out || 0;
+  }
+
+  document.getElementById('weekInThis').textContent = '₹'+thisIn.toLocaleString('en-IN');
+  document.getElementById('weekOutThis').textContent = '₹'+thisOut.toLocaleString('en-IN');
+  document.getElementById('weekNet').textContent = '₹'+(thisIn-thisOut).toLocaleString('en-IN');
+
+  const mkDelta = (curr, prev, el, invertGood) => {
+    if (prev === 0 && curr === 0) { el.textContent = '— same'; el.className = 'wdelta delta-same'; return; }
+    if (prev === 0) { el.textContent = '↑ new'; el.className = 'wdelta delta-up'; return; }
+    const d = Math.round(((curr - prev) / prev) * 100);
+    const up = d >= 0;
+    const good = invertGood ? !up : up;
+    el.textContent = (up ? '↑ +' : '↓ ') + Math.abs(d) + '% vs last wk';
+    el.className = 'wdelta ' + (good ? 'delta-up' : 'delta-down');
+  };
+  mkDelta(thisIn, lastIn, document.getElementById('weekInDelta'), false);
+  mkDelta(thisOut, lastOut, document.getElementById('weekOutDelta'), true);
+}
+
+/* ── Smart insights ────────────────────────────────────────── */
+function renderInsights(totalIn, totalOut, categoryTotals, dayTotals, mIn, mOut) {
+  const el = document.getElementById('smartInsights');
+  if (data.transactions.length < 2) {
+    el.innerHTML = '<div class="empty">Add a few transactions to unlock personalized insights.</div>';
+    return;
+  }
+  const insights = [];
+  const net = totalIn - totalOut;
+  const ratio = totalIn > 0 ? (net / totalIn) : 0;
+
+  // 1. Profit health
+  if (ratio > 0.6) {
+    insights.push({icon:'💚', title:'Strong Margins', text:`You keep ${Math.round(ratio*100)}% of your income. Excellent financial health!`});
+  } else if (ratio > 0.3) {
+    insights.push({icon:'🟡', title:'Moderate Margins', text:`You retain ${Math.round(ratio*100)}% after expenses. Try to push it above 50%.`});
+  } else if (totalIn > 0) {
+    insights.push({icon:'🔴', title:'Margins Are Tight', text:`Only ${Math.round(ratio*100)}% of income is retained. Review your biggest expense categories below.`});
+  }
+
+  // 2. Biggest expense category
+  const topCat = Object.entries(categoryTotals).sort((a,b)=>b[1]-a[1])[0];
+  if (topCat) {
+    const catPct = totalOut > 0 ? Math.round((topCat[1]/totalOut)*100) : 0;
+    insights.push({icon:'🏷️', title:'Top Cost', text:`"${topCat[0]}" eats ${catPct}% of all expenses (₹${topCat[1].toLocaleString('en-IN')}). Worth monitoring.`});
+  }
+
+  // 3. Today's status
+  const today = todayStr();
+  const todayData = dayTotals[today];
+  if (todayData) {
+    if (todayData.in > todayData.out) {
+      insights.push({icon:'✅', title:'Today is Profitable', text:`Today you earned ₹${todayData.in.toLocaleString('en-IN')} and spent ₹${todayData.out.toLocaleString('en-IN')}. Great day!`});
+    } else if (todayData.out > todayData.in) {
+      insights.push({icon:'⚠️', title:'Spending > Income Today', text:`Today's expenses (₹${todayData.out.toLocaleString('en-IN')}) exceed income (₹${todayData.in.toLocaleString('en-IN')}).`});
+    }
+  } else {
+    insights.push({icon:'📭', title:'No Entry Today Yet', text:`You haven't added any transaction for today. Don't forget to log your cash flow!`});
+  }
+
+  // 4. Monthly avg vs overall
+  const daysInMonthSoFar = new Date().getDate();
+  const avgDailyIn = mIn / daysInMonthSoFar;
+  const allDaysList = Object.values(dayTotals);
+  const overallAvgIn = allDaysList.length > 0 ? allDaysList.reduce((s,d)=>s+d.in,0)/allDaysList.length : 0;
+  if (overallAvgIn > 0) {
+    const pct = Math.round(((avgDailyIn - overallAvgIn) / overallAvgIn) * 100);
+    if (pct > 10) {
+      insights.push({icon:'📈', title:'Strong Month', text:`This month's daily income avg (₹${Math.round(avgDailyIn).toLocaleString('en-IN')}) is ${pct}% above your all-time average.`});
+    } else if (pct < -10) {
+      insights.push({icon:'📉', title:'Slow Month', text:`Daily income this month (₹${Math.round(avgDailyIn).toLocaleString('en-IN')}) is ${Math.abs(pct)}% below your all-time average.`});
+    }
+  }
+
+  // 5. Weekend vs weekday
+  let wdIn=0, wdDays=0, weIn=0, weDays=0;
+  Object.entries(dayTotals).forEach(([date, v]) => {
+    const dow = new Date(date+'T00:00:00').getDay();
+    if (dow === 0 || dow === 6) { weIn += v.in; weDays++; } else { wdIn += v.in; wdDays++; }
+  });
+  if (wdDays > 2 && weDays > 0) {
+    const wdAvg = wdIn / wdDays;
+    const weAvg = weIn / weDays;
+    if (weAvg > wdAvg * 1.2) {
+      insights.push({icon:'🎉', title:'Weekends Are Busier', text:`Your weekend income (₹${Math.round(weAvg).toLocaleString('en-IN')}/day avg) is higher than weekdays. Great weekend traffic!`});
+    } else if (wdAvg > weAvg * 1.2) {
+      insights.push({icon:'💼', title:'Weekdays Are Stronger', text:`Weekdays earn ₹${Math.round(wdAvg).toLocaleString('en-IN')}/day on average vs ₹${Math.round(weAvg).toLocaleString('en-IN')} on weekends.`});
+    }
+  }
+
+  el.innerHTML = '';
+  insights.slice(0, 5).forEach(ins => {
+    const d = document.createElement('div');
+    d.className = 'insight-item';
+    d.innerHTML = `<div class="insight-icon">${ins.icon}</div><div class="insight-text"><strong>${ins.title}</strong>${ins.text}</div>`;
+    el.appendChild(d);
+  });
 }
 
 function fmtDate(d) {
