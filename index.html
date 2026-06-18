@@ -360,7 +360,7 @@
     </div>
 
     <div class="card">
-      <h2>Snapshot history</h2>
+      <h2>Snapshot history <button id="denomHistoryToggle" onclick="toggleDenomHistoryView()" style="float:right;width:auto;margin:0;padding:4px 10px;font-size:11px;background:var(--gold-bg);color:var(--gold);border:1px solid #f3e3b8;border-radius:7px;font-weight:700;">Show all</button></h2>
       <div id="denomHistory"></div>
     </div>
   </div>
@@ -965,13 +965,36 @@ function saveDenom() {
   toast('✓ Denomination saved');
 }
 
+let denomHistoryShowAll = false;
+
+function toggleDenomHistoryView() {
+  denomHistoryShowAll = !denomHistoryShowAll;
+  const btn = document.getElementById('denomHistoryToggle');
+  if (btn) btn.textContent = denomHistoryShowAll ? 'Show latest only' : 'Show all';
+  renderDenomHistory();
+}
+
 function renderDenomHistory() {
   const container = document.getElementById('denomHistory');
   if (data.denomSnapshots.length === 0) {
     container.innerHTML = '<div class="empty">No snapshots yet.</div>';
     return;
   }
-  const list = [...data.denomSnapshots].reverse();
+
+  // Build list depending on view mode
+  let list;
+  if (denomHistoryShowAll) {
+    // All snapshots, newest first
+    list = [...data.denomSnapshots].reverse();
+  } else {
+    // Only the LAST snapshot per date (collapsed view)
+    const latestByDate = {};
+    data.denomSnapshots.forEach(snap => {
+      latestByDate[snap.date] = snap; // later entries overwrite earlier ones
+    });
+    list = Object.values(latestByDate).sort((a, b) => b.date.localeCompare(a.date));
+  }
+
   container.innerHTML = '';
   list.forEach((snap) => {
     const div = document.createElement('div');
@@ -979,9 +1002,13 @@ function renderDenomHistory() {
     div.style.display = 'block';
     const breakdown = DENOMS.filter(d => snap.counts[d] > 0).map(d => `₹${d}×${snap.counts[d]}`).join(', ');
     const dateFmt = new Date(snap.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    // In "show all" mode, also show the time so duplicates are distinguishable
+    const timeFmt = denomHistoryShowAll && snap.timestamp
+      ? ' · ' + new Date(snap.timestamp).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})
+      : '';
     div.innerHTML = `
       <div style="display:flex; justify-content:space-between;">
-        <strong>${dateFmt}</strong>
+        <strong>${dateFmt}${timeFmt}</strong>
         <span class="gold" style="font-weight:800;">₹${snap.total.toLocaleString('en-IN')}</span>
       </div>
       <div class="tx-note" style="margin-top:4px;">${breakdown || 'No notes recorded'}</div>
