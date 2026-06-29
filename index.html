@@ -168,6 +168,59 @@
   .badge-in{background:var(--green-bg);color:var(--green);}
   .badge-out{background:var(--coral-bg);color:var(--coral);}
   .badge-edited{background:var(--gold-bg);color:var(--gold);margin-left:6px;}
+  .badge-cash{background:#e8f4fd;color:#1a6ea8;margin-left:4px;}
+  .badge-online{background:#ede8fb;color:#5b3fb5;margin-left:4px;}
+
+  /* Payment mode toggle */
+  .pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--paper-line);margin-top:2px;}
+  .pay-toggle input{display:none;}
+  .pay-toggle label{
+    padding:11px 6px;text-align:center;font-size:14px;font-weight:700;
+    cursor:pointer;background:#fffef9;color:var(--ink-soft);transition:all 0.15s;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .pay-toggle input:checked + label{background:var(--teal);color:#fff;}
+  .pay-toggle label:first-of-type{border-right:1px solid var(--paper-line);}
+
+  /* Online summary card */
+  .online-summary-card{
+    background:linear-gradient(135deg,#7c6fce 0%,#5b3fb5 100%);
+    border-radius:18px;padding:20px 20px;margin-bottom:16px;
+    color:#fff;box-shadow:0 6px 20px rgba(124,111,206,0.28);
+    position:relative;overflow:hidden;
+  }
+  .online-summary-card::after{
+    content:"📱";position:absolute;right:14px;bottom:10px;
+    font-size:64px;opacity:0.15;
+  }
+  .online-summary-card .label{font-size:11px;opacity:0.85;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+  .online-summary-card .val{font-size:32px;font-weight:800;margin-top:4px;font-family:Georgia,serif;}
+  .online-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .online-mini{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px;text-align:center;}
+  .online-mini .om-lbl{font-size:10px;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+  .online-mini .om-val{font-size:17px;font-weight:800;margin-top:3px;}
+
+  /* Payment mode filter */
+  .paymode-filter{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .paymode-filter button{
+    width:auto;margin:0;padding:7px 14px;font-size:12px;border-radius:20px;font-weight:700;
+    border:1.5px solid var(--paper-line);background:#fffef9;color:var(--ink-soft);
+  }
+  .paymode-filter button.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+  /* Withdraw banner */
+  .withdraw-banner{
+    background:linear-gradient(135deg,#5b3fb5,#7c6fce);
+    color:#fff;border-radius:14px;padding:16px 18px;margin-bottom:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .withdraw-banner .wb-left .wb-title{font-size:13px;font-weight:700;opacity:0.9;}
+  .withdraw-banner .wb-left .wb-amt{font-size:24px;font-weight:900;font-family:Georgia,serif;margin-top:2px;}
+  .withdraw-banner .wb-btn{
+    background:rgba(255,255,255,0.22);color:#fff;border:none;border-radius:10px;
+    padding:10px 14px;font-size:13px;font-weight:800;white-space:nowrap;
+    width:auto;margin:0;flex-shrink:0;
+  }
 
   .toast{
     position:fixed;bottom:88px;left:50%;transform:translateX(-50%);
@@ -325,6 +378,31 @@
 
     <div id="backupBanner"></div>
 
+    <!-- Online money section -->
+    <div id="onlineSummarySection">
+      <div class="online-summary-card">
+        <div class="label">Online payments · this month</div>
+        <div class="val" id="onlineMonthTotal">₹0</div>
+        <div class="online-grid">
+          <div class="online-mini">
+            <div class="om-lbl">All-time online</div>
+            <div class="om-val" id="onlineAllTime">₹0</div>
+          </div>
+          <div class="online-mini">
+            <div class="om-lbl">Pending withdraw</div>
+            <div class="om-val" id="onlinePending">₹0</div>
+          </div>
+        </div>
+      </div>
+      <div class="withdraw-banner" id="withdrawBanner" style="display:none;">
+        <div class="wb-left">
+          <div class="wb-title">💸 Ready to withdraw this month</div>
+          <div class="wb-amt" id="withdrawAmt">₹0</div>
+        </div>
+        <button class="wb-btn" onclick="markWithdrawn()">Mark withdrawn ✓</button>
+      </div>
+    </div>
+
 
     <div class="card">
       <h2>Today</h2>
@@ -366,6 +444,14 @@
         <option>Owner Deposit</option>
         <option>Other</option>
       </select>
+
+      <label>Payment mode</label>
+      <div class="pay-toggle">
+        <input type="radio" name="payMode" id="modeCash" value="cash" checked>
+        <label for="modeCash">💵 Cash</label>
+        <input type="radio" name="payMode" id="modeOnline" value="online">
+        <label for="modeOnline">📱 Online</label>
+      </div>
 
       <label>Note (optional)</label>
       <input type="text" id="entryNote" placeholder="e.g. Customer name, details" autocomplete="off" list="noteSuggestions">
@@ -409,6 +495,11 @@
           <option value="all">All categories</option>
         </select>
       </div>
+      <div class="paymode-filter">
+        <button class="active" onclick="setPayFilter('all',this)">All</button>
+        <button onclick="setPayFilter('cash',this)">💵 Cash</button>
+        <button onclick="setPayFilter('online',this)">📱 Online</button>
+      </div>
       <div class="balance-grid">
         <div class="balance-box income">
           <div class="label">Total In</div>
@@ -417,6 +508,16 @@
         <div class="balance-box expense">
           <div class="label">Total Out</div>
           <div class="val red" id="filterOut">₹0</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;" id="payBreakdownRow">
+        <div class="balance-box" style="background:#e8f4fd;">
+          <div class="label" style="color:#1a6ea8;">💵 Cash In</div>
+          <div class="val" style="font-size:17px;color:#1a6ea8;" id="filterCashIn">₹0</div>
+        </div>
+        <div class="balance-box" style="background:#ede8fb;">
+          <div class="label" style="color:#5b3fb5;">📱 Online In</div>
+          <div class="val" style="font-size:17px;color:#5b3fb5;" id="filterOnlineIn">₹0</div>
         </div>
       </div>
     </div>
@@ -876,6 +977,7 @@ function addEntry() {
   const amount = parseFloat(document.getElementById('entryAmount').value);
   const category = document.getElementById('entryCategory').value;
   const note = document.getElementById('entryNote').value.trim();
+  const payMode = document.querySelector('input[name="payMode"]:checked').value;
 
   if (!date) return toast('Select a date');
   if (date > todayStr()) return toast('✕ Future date not allowed');
@@ -884,7 +986,7 @@ function addEntry() {
   const proceed = () => {
     data.transactions.push({
       id: data.nextId++,
-      date, type, amount, category, note,
+      date, type, amount, category, note, payMode,
       createdAt: new Date().toISOString(),
       pastDateEntry: date < todayStr()
     });
@@ -955,19 +1057,42 @@ function changeSecurityCode() {
 
 function renderDashboard() {
   const today = todayStr();
+  const nowM = today.slice(0,7);
   let totalIn = 0, totalOut = 0, todayIn = 0, todayOut = 0;
+  let onlineMonthIn = 0, onlineAllTimeIn = 0;
+
   data.transactions.forEach(t => {
-    if (t.type === 'in') totalIn += t.amount; else totalOut += t.amount;
+    if (t.type === 'in') { totalIn += t.amount; } else { totalOut += t.amount; }
     if (t.date === today) {
       if (t.type === 'in') todayIn += t.amount; else todayOut += t.amount;
     }
+    const pm = t.payMode || 'cash';
+    if (pm === 'online' && t.type === 'in') {
+      onlineAllTimeIn += t.amount;
+      if (t.date.startsWith(nowM)) onlineMonthIn += t.amount;
+    }
   });
-  const netStr = '₹' + (totalIn - totalOut).toLocaleString('en-IN');
-  const inStr = '₹' + todayIn.toLocaleString('en-IN');
-  const outStr = '₹' + todayOut.toLocaleString('en-IN');
+
+  // Withdrawn log
+  if (!data.withdrawals) data.withdrawals = [];
+  const totalWithdrawn = data.withdrawals.reduce((s, w) => s + w.amount, 0);
+  const pendingWithdraw = Math.max(0, onlineAllTimeIn - totalWithdrawn);
+
+  const fmt = v => '₹' + v.toLocaleString('en-IN');
+  const netStr = fmt(totalIn - totalOut);
+  const inStr = fmt(todayIn);
+  const outStr = fmt(todayOut);
   document.getElementById('netBalance').textContent = privacyOn ? maskAmount(netStr) : netStr;
   document.getElementById('todayIn').textContent = privacyOn ? maskAmount(inStr) : inStr;
   document.getElementById('todayOut').textContent = privacyOn ? maskAmount(outStr) : outStr;
+
+  // Online section
+  document.getElementById('onlineMonthTotal').textContent = privacyOn ? maskAmount(fmt(onlineMonthIn)) : fmt(onlineMonthIn);
+  document.getElementById('onlineAllTime').textContent = privacyOn ? maskAmount(fmt(onlineAllTimeIn)) : fmt(onlineAllTimeIn);
+  document.getElementById('onlinePending').textContent = privacyOn ? maskAmount(fmt(pendingWithdraw)) : fmt(pendingWithdraw);
+  const wb = document.getElementById('withdrawBanner');
+  document.getElementById('withdrawAmt').textContent = fmt(onlineMonthIn);
+  wb.style.display = onlineMonthIn > 0 ? 'flex' : 'none';
 
   const eyeBtn = document.getElementById('eyeToggle');
   if (eyeBtn) eyeBtn.textContent = privacyOn ? '🙈' : '👁️';
@@ -1003,11 +1128,15 @@ function txElement(t, mask) {
   div.className = 'tx-item';
   const dateFmt = new Date(t.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
   const amtStr = (t.type==='in'?'+':'-') + '₹' + t.amount.toLocaleString('en-IN');
+  const payBadge = t.payMode === 'online'
+    ? '<span class="badge badge-online">📱 Online</span>'
+    : '<span class="badge badge-cash">💵 Cash</span>';
   div.innerHTML = `
     <div class="tx-left">
       <div>${t.category}${t.note ? ' — '+escapeHtml(t.note) : ''}</div>
       <div class="tx-note">
         <span class="badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'IN':'OUT'}</span>
+        ${payBadge}
         ${t.pastDateEntry ? '<span class="badge badge-edited">past</span>' : ''}
         &nbsp;${dateFmt}
       </div>
@@ -1045,6 +1174,28 @@ function populateCategoryFilter() {
   if ([...cats].includes(current)) sel.value = current;
 }
 
+function markWithdrawn() {
+  const nowM = todayStr().slice(0,7);
+  if (!data.withdrawals) data.withdrawals = [];
+  const onlineMonthIn = data.transactions
+    .filter(t => t.type === 'in' && (t.payMode || 'cash') === 'online' && t.date.startsWith(nowM))
+    .reduce((s, t) => s + t.amount, 0);
+  if (onlineMonthIn <= 0) return toast('No online income this month');
+  if (!confirm(`Mark ₹${onlineMonthIn.toLocaleString('en-IN')} as withdrawn for ${new Date(nowM+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'})}?`)) return;
+  data.withdrawals.push({ month: nowM, amount: onlineMonthIn, date: new Date().toISOString() });
+  save();
+  renderDashboard();
+  toast('✓ Withdrawal recorded');
+}
+
+let _payFilter = 'all';
+function setPayFilter(mode, btn) {
+  _payFilter = mode;
+  document.querySelectorAll('.paymode-filter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
 function renderHistory() {
   populateMonthFilter();
   populateCategoryFilter();
@@ -1055,11 +1206,17 @@ function renderHistory() {
   if (month !== 'all') list = list.filter(t => t.date.startsWith(month));
   if (type !== 'all') list = list.filter(t => t.type === type);
   if (cat !== 'all') list = list.filter(t => t.category === cat);
+  if (_payFilter !== 'all') list = list.filter(t => (t.payMode || 'cash') === _payFilter);
 
-  let totalIn = 0, totalOut = 0;
-  list.forEach(t => { if (t.type==='in') totalIn += t.amount; else totalOut += t.amount; });
+  let totalIn = 0, totalOut = 0, cashIn = 0, onlineIn = 0;
+  list.forEach(t => {
+    if (t.type==='in') { totalIn += t.amount; if ((t.payMode||'cash')==='cash') cashIn+=t.amount; else onlineIn+=t.amount; }
+    else totalOut += t.amount;
+  });
   document.getElementById('filterIn').textContent = '₹' + totalIn.toLocaleString('en-IN');
   document.getElementById('filterOut').textContent = '₹' + totalOut.toLocaleString('en-IN');
+  document.getElementById('filterCashIn').textContent = '₹' + cashIn.toLocaleString('en-IN');
+  document.getElementById('filterOnlineIn').textContent = '₹' + onlineIn.toLocaleString('en-IN');
 
   const container = document.getElementById('historyList');
   container.innerHTML = list.length ? '' : '<div class="empty">No entries found for this filter.</div>';
