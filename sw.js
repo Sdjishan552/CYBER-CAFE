@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashbook-v4';
+const CACHE_NAME = 'cashbook-v5';
 const FILES = [
   './index.html',
   './manifest.json',
