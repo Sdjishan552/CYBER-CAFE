@@ -390,6 +390,13 @@
   .due-item .due-actions button{width:auto;margin:0;padding:9px 14px;font-size:13px;flex:1;}
   .due-empty-note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
 
+  input[type="checkbox"]{width:auto;accent-color:var(--teal);flex-shrink:0;}
+  .check-row{
+    display:flex;align-items:center;gap:9px;cursor:pointer;margin:0;
+    font-size:13px;color:var(--ink);font-weight:600;
+  }
+  .check-row input[type="checkbox"]{width:17px;height:17px;margin:0;}
+
   /* Category bar */
   .cat-bar-row{margin-bottom:9px;}
   .cat-bar-top{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:4px;}
@@ -595,7 +602,21 @@
       </select>
 
       <label>Amount (₹)</label>
-      <input type="number" id="entryAmount" inputmode="decimal" placeholder="0">
+      <input type="number" id="entryAmount" inputmode="decimal" placeholder="0" oninput="updateEntryDuePreview()">
+
+      <div id="entryDueToggleWrap" style="margin-top:12px;">
+        <label class="check-row" for="entryIsDue">
+          <input type="checkbox" id="entryIsDue" onchange="toggleEntryDueFields()">
+          <span>Customer paid less than this — track the rest as a due</span>
+        </label>
+      </div>
+      <div id="entryDueFields" style="display:none;">
+        <label>Amount received now (₹)</label>
+        <input type="number" id="entryReceivedNow" inputmode="decimal" oninput="updateEntryDuePreview()">
+        <label>Customer name (for the due)</label>
+        <input type="text" id="entryDueCustomer" placeholder="e.g. Ramesh, Sharma Ji" autocomplete="off" list="dueCustomerSuggestions">
+        <div class="small-note" id="entryDuePreview"></div>
+      </div>
 
       <label>Category</label>
       <select id="entryCategory">
@@ -755,6 +776,7 @@
         </div>
       </div>
       <div class="diff-warn" id="denomDiff"></div>
+      <button class="btn-secondary" id="denomShortfallBtn" style="display:none;" onclick="markDenomShortfallAsDue()">📋 Track that shortfall as a customer due</button>
 
       <button class="btn-success" onclick="saveDenom()">Save denomination snapshot</button>
     </div>
@@ -1186,6 +1208,61 @@ document.getElementById('entryDate').addEventListener('change', () => {
   }
 });
 
+document.getElementById('entryType').addEventListener('change', () => {
+  const type = document.getElementById('entryType').value;
+  const wrap = document.getElementById('entryDueToggleWrap');
+  if (type !== 'in') {
+    document.getElementById('entryIsDue').checked = false;
+    document.getElementById('entryDueFields').style.display = 'none';
+    wrap.style.display = 'none';
+  } else {
+    wrap.style.display = 'block';
+  }
+});
+
+function toggleEntryDueFields() {
+  const on = document.getElementById('entryIsDue').checked;
+  const fields = document.getElementById('entryDueFields');
+  fields.style.display = on ? 'block' : 'none';
+  if (on) {
+    const amt = document.getElementById('entryAmount').value;
+    document.getElementById('entryReceivedNow').value = '';
+    document.getElementById('entryReceivedNow').max = amt || '';
+  }
+  updateEntryDuePreview();
+}
+
+function updateEntryDuePreview() {
+  const preview = document.getElementById('entryDuePreview');
+  if (!document.getElementById('entryIsDue').checked) return;
+  const amount = parseFloat(document.getElementById('entryAmount').value) || 0;
+  const received = parseFloat(document.getElementById('entryReceivedNow').value);
+  document.getElementById('entryReceivedNow').max = amount || '';
+  if (!amount) {
+    preview.textContent = 'Enter the full amount above first.';
+    preview.style.color = 'var(--ink-soft)';
+    return;
+  }
+  if (isNaN(received)) {
+    preview.textContent = `Should get ₹${amount.toLocaleString('en-IN')} — enter what was actually received.`;
+    preview.style.color = 'var(--ink-soft)';
+    return;
+  }
+  if (received > amount) {
+    preview.textContent = '✕ Received amount cannot be more than the total amount.';
+    preview.style.color = 'var(--coral)';
+    return;
+  }
+  const due = amount - received;
+  if (due <= 0) {
+    preview.textContent = '✓ Fully received — no due will be created.';
+    preview.style.color = 'var(--green)';
+  } else {
+    preview.textContent = `₹${received.toLocaleString('en-IN')} recorded now, ₹${due.toLocaleString('en-IN')} tracked as a due.`;
+    preview.style.color = '#a07300';
+  }
+}
+
 function addEntry() {
   const date = document.getElementById('entryDate').value;
   const type = document.getElementById('entryType').value;
@@ -1193,23 +1270,55 @@ function addEntry() {
   const category = document.getElementById('entryCategory').value;
   const note = document.getElementById('entryNote').value.trim();
   const payMode = document.querySelector('input[name="payMode"]:checked').value;
+  const isDue = type === 'in' && document.getElementById('entryIsDue').checked;
 
   if (!date) return toast('Select a date');
   if (date > todayStr()) return toast('✕ Future date not allowed');
   if (!amount || amount <= 0) return toast('Enter a valid amount');
 
+  let receivedNow = amount;
+  let dueAmount = 0;
+  let dueCustomer = '';
+  if (isDue) {
+    receivedNow = parseFloat(document.getElementById('entryReceivedNow').value);
+    if (isNaN(receivedNow) || receivedNow < 0) return toast('Enter the amount actually received');
+    if (receivedNow > amount) return toast('Received amount cannot exceed the total amount');
+    dueAmount = amount - receivedNow;
+    dueCustomer = document.getElementById('entryDueCustomer').value.trim();
+    if (dueAmount > 0 && !dueCustomer) return toast("Enter the customer's name for the due");
+  }
+
   const proceed = () => {
-    data.transactions.push({
-      id: data.nextId++,
-      date, type, amount, category, note, payMode,
-      createdAt: new Date().toISOString(),
-      pastDateEntry: date < todayStr()
-    });
+    if (receivedNow > 0) {
+      data.transactions.push({
+        id: data.nextId++,
+        date, type, amount: receivedNow, category, note, payMode,
+        createdAt: new Date().toISOString(),
+        pastDateEntry: date < todayStr()
+      });
+    }
+    if (isDue && dueAmount > 0) {
+      data.dues.push({
+        id: data.nextId++,
+        customerName: dueCustomer, amount: dueAmount, category, note, date,
+        createdAt: new Date().toISOString(),
+        payments: [],
+        status: 'pending'
+      });
+    }
     save();
     document.getElementById('entryAmount').value = '';
     document.getElementById('entryNote').value = '';
+    document.getElementById('entryIsDue').checked = false;
+    document.getElementById('entryDueFields').style.display = 'none';
+    document.getElementById('entryReceivedNow').value = '';
+    document.getElementById('entryDueCustomer').value = '';
     renderDashboard();
-    toast('✓ Entry added');
+    if (isDue && dueAmount > 0) {
+      toast(`✓ ₹${receivedNow.toLocaleString('en-IN')} recorded, ₹${dueAmount.toLocaleString('en-IN')} due from ${dueCustomer}`);
+    } else {
+      toast('✓ Entry added');
+    }
   };
 
   if (date < todayStr()) {
@@ -1908,13 +2017,39 @@ function updateDenomTotal() {
   document.getElementById('denomTarget').textContent = '₹' + target.toLocaleString('en-IN');
   const diff = total - target;
   const diffEl = document.getElementById('denomDiff');
+  const shortfallBtn = document.getElementById('denomShortfallBtn');
   if (diff === 0) {
     diffEl.textContent = '✓ Matches your cash balance perfectly';
     diffEl.className = 'diff-warn diff-ok';
+    shortfallBtn.style.display = 'none';
   } else {
     diffEl.textContent = `Mismatch: ${diff > 0 ? '+' : ''}₹${diff.toLocaleString('en-IN')} — adjust note counts to match`;
     diffEl.className = 'diff-warn diff-bad';
+    if (diff < 0) {
+      shortfallBtn.textContent = `📋 Track that ₹${Math.abs(diff).toLocaleString('en-IN')} shortfall as a customer due`;
+      shortfallBtn.style.display = 'block';
+    } else {
+      shortfallBtn.style.display = 'none';
+    }
   }
+}
+
+function markDenomShortfallAsDue() {
+  let total = 0;
+  DENOMS.forEach(d => {
+    total += (parseInt(document.getElementById('denom_' + d).value) || 0) * d;
+  });
+  const target = getCashBalance();
+  const diff = total - target;
+  if (diff >= 0) return;
+  const shortfall = Math.abs(diff);
+  openDuesPage();
+  setTimeout(() => {
+    document.getElementById('dueAmount').value = shortfall;
+    document.getElementById('dueNote').value = 'Cash short during denomination count';
+    document.getElementById('dueCustomer').focus();
+    toast(`Prefilled a ₹${shortfall.toLocaleString('en-IN')} due — add who owes it`);
+  }, 150);
 }
 
 function saveDenom() {
