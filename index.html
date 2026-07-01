@@ -115,7 +115,10 @@
   .tx-left > div:first-child{font-weight:600;font-size:14px;}
   .tx-note{color:var(--ink-soft);font-size:12px;margin-top:2px;}
   .tx-amt{font-weight:800;font-size:15px;white-space:nowrap;}
+  .tx-actions{display:flex;gap:6px;flex-shrink:0;}
   .tx-del{background:#f3ede0;color:var(--coral);border:none;border-radius:8px;
+    padding:6px 10px;margin:0;font-size:15px;width:auto;font-weight:700;}
+  .tx-edit{background:var(--teal-bg);color:var(--teal);border:none;border-radius:8px;
     padding:6px 10px;margin:0;font-size:15px;width:auto;font-weight:700;}
 
   .denom-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
@@ -158,6 +161,20 @@
   .lock-card p{color:var(--ink-soft);font-size:13px;margin-bottom:14px;}
   .lock-card input{text-align:center;font-size:22px;letter-spacing:6px;}
 
+  .modal-card{
+    background:var(--card);border-radius:18px;padding:24px 22px;width:100%;max-width:360px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);text-align:left;max-height:88vh;overflow-y:auto;
+  }
+  .modal-card h2{font-size:17px;color:var(--ink);text-transform:none;letter-spacing:0;margin-bottom:4px;text-align:center;font-family:Georgia,serif;}
+  .modal-card p.mhint{color:var(--ink-soft);font-size:12.5px;text-align:center;margin-bottom:6px;line-height:1.4;}
+  .modal-available{
+    background:var(--violet-bg);color:var(--violet);border-radius:10px;padding:10px;
+    text-align:center;font-size:13px;font-weight:700;margin-top:10px;
+  }
+  .modal-denom-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;}
+  .modal-denom-grid .denom-box{padding:8px 4px;}
+  .modal-denom-grid .denom-box input{padding:6px 2px;font-size:13px;margin-top:4px;}
+
   .empty{text-align:center;color:var(--ink-soft);padding:28px 10px;font-size:14px;}
 
   .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--paper-line);font-size:14px;}
@@ -170,14 +187,15 @@
   .badge-edited{background:var(--gold-bg);color:var(--gold);margin-left:6px;}
   .badge-cash{background:#e8f4fd;color:#1a6ea8;margin-left:4px;}
   .badge-online{background:#ede8fb;color:#5b3fb5;margin-left:4px;}
+  .badge-editmark{background:#f0ece0;color:#8a7f6c;margin-left:4px;}
 
   /* Payment mode toggle */
   .pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--paper-line);margin-top:2px;}
   .pay-toggle input{display:none;}
   .pay-toggle label{
-    padding:11px 6px;text-align:center;font-size:14px;font-weight:700;
+    margin:0;padding:11px 6px;text-align:center;font-size:14px;font-weight:700;
     cursor:pointer;background:#fffef9;color:var(--ink-soft);transition:all 0.15s;
-    display:flex;align-items:center;justify-content:center;gap:6px;
+    display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.2;
   }
   .pay-toggle input:checked + label{background:var(--teal);color:#fff;}
   .pay-toggle label:first-of-type{border-right:1px solid var(--paper-line);}
@@ -360,6 +378,82 @@
   </div>
 </div>
 
+<!-- ENCASH ONLINE MONEY MODAL -->
+<div id="encashModal" class="lock-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>📱→💵 Encash Online Money</h2>
+    <p class="mhint">Enter the amount you're pulling out of online balance, then tell me the exact notes/coins you received so your cash count stays accurate.</p>
+    <div class="modal-available">Available online: <span id="encashAvailable">₹0</span></div>
+
+    <label>Amount to encash (₹)</label>
+    <input type="number" id="encashAmount" inputmode="decimal" oninput="updateEncashDiff()">
+
+    <label style="margin-top:16px;">Denomination received</label>
+    <div class="modal-denom-grid" id="encashDenomGrid"></div>
+
+    <div class="row2" style="margin-top:14px;">
+      <div class="balance-box" style="background:var(--gold-bg);">
+        <div class="label">Notes total</div>
+        <div class="val gold" id="encashDenomTotal" style="font-size:17px;">₹0</div>
+      </div>
+      <div class="balance-box" style="background:var(--teal-bg);">
+        <div class="label">Encash amount</div>
+        <div class="val teal" id="encashAmountEcho" style="font-size:17px;">₹0</div>
+      </div>
+    </div>
+    <div class="diff-warn" id="encashDiff"></div>
+
+    <button class="btn-success" onclick="confirmEncash()">Confirm encashment</button>
+    <button class="btn-secondary" onclick="closeEncashModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- EDIT ENTRY MODAL -->
+<div id="editModal" class="lock-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>✎ Edit Entry</h2>
+
+    <label>Date</label>
+    <input type="date" id="editDate">
+
+    <label>Type</label>
+    <select id="editType">
+      <option value="in">In</option>
+      <option value="out">Out</option>
+    </select>
+
+    <label>Amount (₹)</label>
+    <input type="number" id="editAmount" inputmode="decimal">
+
+    <label>Category</label>
+    <select id="editCategory">
+      <option>Browsing/Printing</option>
+      <option>Photocopy/Scan</option>
+      <option>Online Form/Service</option>
+      <option>Recharge/Bill Pay</option>
+      <option>Electricity Bill</option>
+      <option>Internet/WiFi Bill</option>
+      <option>Owner Withdrawal</option>
+      <option>Owner Deposit</option>
+      <option>Other</option>
+    </select>
+
+    <label>Payment mode</label>
+    <div class="pay-toggle">
+      <input type="radio" name="editPayMode" id="editModeCash" value="cash">
+      <label for="editModeCash">💵 Cash</label>
+      <input type="radio" name="editPayMode" id="editModeOnline" value="online">
+      <label for="editModeOnline">📱 Online</label>
+    </div>
+
+    <label>Note (optional)</label>
+    <input type="text" id="editNote">
+
+    <button class="btn-primary" onclick="saveEditEntry()">Save changes</button>
+    <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+  </div>
+</div>
+
 <header>
   <h1>Cyber Cafe Cash Book</h1>
   <div class="sub" id="todayDate"></div>
@@ -381,25 +475,25 @@
     <!-- Online money section -->
     <div id="onlineSummarySection">
       <div class="online-summary-card">
-        <div class="label">Online payments · this month</div>
-        <div class="val" id="onlineMonthTotal">₹0</div>
+        <div class="label">Online balance · available</div>
+        <div class="val" id="onlineBalanceVal">₹0</div>
         <div class="online-grid">
           <div class="online-mini">
-            <div class="om-lbl">All-time online</div>
-            <div class="om-val" id="onlineAllTime">₹0</div>
+            <div class="om-lbl">This month in</div>
+            <div class="om-val" id="onlineMonthIn">₹0</div>
           </div>
           <div class="online-mini">
-            <div class="om-lbl">Pending withdraw</div>
-            <div class="om-val" id="onlinePending">₹0</div>
+            <div class="om-lbl">Total encashed</div>
+            <div class="om-val" id="onlineEncashedTotal">₹0</div>
           </div>
         </div>
       </div>
       <div class="withdraw-banner" id="withdrawBanner" style="display:none;">
         <div class="wb-left">
-          <div class="wb-title">💸 Ready to withdraw this month</div>
+          <div class="wb-title">💸 Sitting in online balance</div>
           <div class="wb-amt" id="withdrawAmt">₹0</div>
         </div>
-        <button class="wb-btn" onclick="markWithdrawn()">Mark withdrawn ✓</button>
+        <button class="wb-btn" onclick="openEncashModal()">Encash ✓</button>
       </div>
     </div>
 
@@ -1021,6 +1115,71 @@ function deleteEntry(id) {
   }
 }
 
+/* ── Edit an existing entry ────────────────────────────────── */
+let _editingId = null;
+
+function editEntry(id) {
+  const tx = data.transactions.find(t => t.id === id);
+  if (!tx) return;
+  const proceed = () => {
+    _editingId = id;
+    document.getElementById('editDate').value = tx.date;
+    document.getElementById('editDate').max = todayStr();
+    document.getElementById('editType').value = tx.type;
+    document.getElementById('editAmount').value = tx.amount;
+    document.getElementById('editCategory').value = tx.category;
+    document.getElementById('editNote').value = tx.note || '';
+    document.getElementById(tx.payMode === 'online' ? 'editModeOnline' : 'editModeCash').checked = true;
+    document.getElementById('editModal').style.display = 'flex';
+  };
+  if (tx.date < todayStr()) {
+    requestSecurityCode(proceed);
+  } else {
+    proceed();
+  }
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+  _editingId = null;
+}
+
+function saveEditEntry() {
+  if (_editingId == null) return;
+  const tx = data.transactions.find(t => t.id === _editingId);
+  if (!tx) return;
+
+  const date = document.getElementById('editDate').value;
+  const type = document.getElementById('editType').value;
+  const amount = parseFloat(document.getElementById('editAmount').value);
+  const category = document.getElementById('editCategory').value;
+  const note = document.getElementById('editNote').value.trim();
+  const payMode = document.querySelector('input[name="editPayMode"]:checked').value;
+
+  if (!date) return toast('Select a date');
+  if (date > todayStr()) return toast('✕ Future date not allowed');
+  if (!amount || amount <= 0) return toast('Enter a valid amount');
+
+  const applyEdit = () => {
+    tx.date = date; tx.type = type; tx.amount = amount;
+    tx.category = category; tx.note = note; tx.payMode = payMode;
+    tx.pastDateEntry = date < todayStr();
+    tx.edited = true;
+    save();
+    closeEditModal();
+    renderDashboard();
+    if (document.getElementById('page-history').classList.contains('active')) renderHistory();
+    toast('✓ Entry updated');
+  };
+
+  // Require the code if either the original or the new date is in the past.
+  if (date < todayStr() || tx.date < todayStr()) {
+    requestSecurityCode(applyEdit);
+  } else {
+    applyEdit();
+  }
+}
+
 let pendingAction = null;
 function requestSecurityCode(callback) {
   pendingAction = callback;
@@ -1059,7 +1218,7 @@ function renderDashboard() {
   const today = todayStr();
   const nowM = today.slice(0,7);
   let totalIn = 0, totalOut = 0, todayIn = 0, todayOut = 0;
-  let onlineMonthIn = 0, onlineAllTimeIn = 0;
+  let onlineMonthIn = 0;
 
   data.transactions.forEach(t => {
     if (t.type === 'in') { totalIn += t.amount; } else { totalOut += t.amount; }
@@ -1067,16 +1226,13 @@ function renderDashboard() {
       if (t.type === 'in') todayIn += t.amount; else todayOut += t.amount;
     }
     const pm = t.payMode || 'cash';
-    if (pm === 'online' && t.type === 'in') {
-      onlineAllTimeIn += t.amount;
-      if (t.date.startsWith(nowM)) onlineMonthIn += t.amount;
+    if (pm === 'online' && t.type === 'in' && t.date.startsWith(nowM)) {
+      onlineMonthIn += t.amount;
     }
   });
 
-  // Withdrawn log
-  if (!data.withdrawals) data.withdrawals = [];
-  const totalWithdrawn = data.withdrawals.reduce((s, w) => s + w.amount, 0);
-  const pendingWithdraw = Math.max(0, onlineAllTimeIn - totalWithdrawn);
+  const onlineBalance = getOnlineBalance();
+  const totalEncashed = getTotalEncashed();
 
   const fmt = v => '₹' + v.toLocaleString('en-IN');
   const netStr = fmt(totalIn - totalOut);
@@ -1086,13 +1242,13 @@ function renderDashboard() {
   document.getElementById('todayIn').textContent = privacyOn ? maskAmount(inStr) : inStr;
   document.getElementById('todayOut').textContent = privacyOn ? maskAmount(outStr) : outStr;
 
-  // Online section
-  document.getElementById('onlineMonthTotal').textContent = privacyOn ? maskAmount(fmt(onlineMonthIn)) : fmt(onlineMonthIn);
-  document.getElementById('onlineAllTime').textContent = privacyOn ? maskAmount(fmt(onlineAllTimeIn)) : fmt(onlineAllTimeIn);
-  document.getElementById('onlinePending').textContent = privacyOn ? maskAmount(fmt(pendingWithdraw)) : fmt(pendingWithdraw);
+  // Online section — a running wallet balance, not just "this month"
+  document.getElementById('onlineBalanceVal').textContent = privacyOn ? maskAmount(fmt(onlineBalance)) : fmt(onlineBalance);
+  document.getElementById('onlineMonthIn').textContent = privacyOn ? maskAmount(fmt(onlineMonthIn)) : fmt(onlineMonthIn);
+  document.getElementById('onlineEncashedTotal').textContent = privacyOn ? maskAmount(fmt(totalEncashed)) : fmt(totalEncashed);
   const wb = document.getElementById('withdrawBanner');
-  document.getElementById('withdrawAmt').textContent = fmt(onlineMonthIn);
-  wb.style.display = onlineMonthIn > 0 ? 'flex' : 'none';
+  document.getElementById('withdrawAmt').textContent = fmt(onlineBalance);
+  wb.style.display = onlineBalance > 0 ? 'flex' : 'none';
 
   const eyeBtn = document.getElementById('eyeToggle');
   if (eyeBtn) eyeBtn.textContent = privacyOn ? '🙈' : '👁️';
@@ -1138,11 +1294,15 @@ function txElement(t, mask) {
         <span class="badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'IN':'OUT'}</span>
         ${payBadge}
         ${t.pastDateEntry ? '<span class="badge badge-edited">past</span>' : ''}
+        ${t.edited ? '<span class="badge badge-editmark">edited</span>' : ''}
         &nbsp;${dateFmt}
       </div>
     </div>
     <div class="tx-amt ${t.type==='in'?'green':'red'}">${mask ? maskAmount(amtStr) : amtStr}</div>
-    <button class="tx-del" onclick="deleteEntry(${t.id})">✕</button>
+    <div class="tx-actions">
+      <button class="tx-edit" onclick="editEntry(${t.id})">✎</button>
+      <button class="tx-del" onclick="deleteEntry(${t.id})">✕</button>
+    </div>
   `;
   return div;
 }
@@ -1174,18 +1334,121 @@ function populateCategoryFilter() {
   if ([...cats].includes(current)) sel.value = current;
 }
 
-function markWithdrawn() {
-  const nowM = todayStr().slice(0,7);
+/* ── Online ⇄ Cash encashment ─────────────────────────────────
+   Online balance = all online "in" − all online "out" − total encashed.
+   Cash balance    = all cash "in"   − all cash "out"   + total encashed.
+   Encashing moves money from the online bucket to the physical cash
+   bucket; the person must say exactly which notes/coins they got so
+   the denomination count stays accurate. ────────────────────────── */
+
+function getTotalEncashed() {
   if (!data.withdrawals) data.withdrawals = [];
-  const onlineMonthIn = data.transactions
-    .filter(t => t.type === 'in' && (t.payMode || 'cash') === 'online' && t.date.startsWith(nowM))
-    .reduce((s, t) => s + t.amount, 0);
-  if (onlineMonthIn <= 0) return toast('No online income this month');
-  if (!confirm(`Mark ₹${onlineMonthIn.toLocaleString('en-IN')} as withdrawn for ${new Date(nowM+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'})}?`)) return;
-  data.withdrawals.push({ month: nowM, amount: onlineMonthIn, date: new Date().toISOString() });
+  return data.withdrawals.reduce((s, w) => s + w.amount, 0);
+}
+
+function getCashTxTotals() {
+  let cashIn = 0, cashOut = 0, onlineIn = 0, onlineOut = 0;
+  data.transactions.forEach(t => {
+    const pm = t.payMode || 'cash';
+    if (pm === 'cash') { if (t.type === 'in') cashIn += t.amount; else cashOut += t.amount; }
+    else { if (t.type === 'in') onlineIn += t.amount; else onlineOut += t.amount; }
+  });
+  return { cashIn, cashOut, onlineIn, onlineOut };
+}
+
+function getOnlineBalance() {
+  const { onlineIn, onlineOut } = getCashTxTotals();
+  return onlineIn - onlineOut - getTotalEncashed();
+}
+
+function openEncashModal() {
+  const bal = getOnlineBalance();
+  if (bal <= 0) return toast('No online balance available to encash');
+  document.getElementById('encashAvailable').textContent = '₹' + bal.toLocaleString('en-IN');
+  document.getElementById('encashAmount').value = bal;
+  document.getElementById('encashAmount').max = bal;
+  buildEncashDenomGrid();
+  document.getElementById('encashModal').style.display = 'flex';
+  updateEncashDiff();
+}
+
+function closeEncashModal() {
+  document.getElementById('encashModal').style.display = 'none';
+}
+
+function buildEncashDenomGrid() {
+  const grid = document.getElementById('encashDenomGrid');
+  grid.innerHTML = '';
+  DENOMS.forEach(d => {
+    const box = document.createElement('div');
+    box.className = 'denom-box';
+    box.innerHTML = `
+      <div class="dval">₹${d}</div>
+      <input type="number" inputmode="numeric" min="0" id="edenom_${d}" value="0" oninput="updateEncashDiff()">
+    `;
+    grid.appendChild(box);
+  });
+}
+
+function updateEncashDiff() {
+  let total = 0;
+  DENOMS.forEach(d => { total += (parseInt(document.getElementById('edenom_' + d).value) || 0) * d; });
+  const amt = parseFloat(document.getElementById('encashAmount').value) || 0;
+  document.getElementById('encashDenomTotal').textContent = '₹' + total.toLocaleString('en-IN');
+  document.getElementById('encashAmountEcho').textContent = '₹' + amt.toLocaleString('en-IN');
+  const diffEl = document.getElementById('encashDiff');
+  if (amt <= 0) {
+    diffEl.textContent = 'Enter the amount you are encashing';
+    diffEl.className = 'diff-warn diff-bad';
+    return;
+  }
+  const diff = total - amt;
+  if (diff === 0) {
+    diffEl.textContent = '✓ Notes match the encash amount';
+    diffEl.className = 'diff-warn diff-ok';
+  } else {
+    diffEl.textContent = `Mismatch: ${diff > 0 ? '+' : ''}₹${diff.toLocaleString('en-IN')} — adjust notes to match`;
+    diffEl.className = 'diff-warn diff-bad';
+  }
+}
+
+function confirmEncash() {
+  const amt = parseFloat(document.getElementById('encashAmount').value);
+  const bal = getOnlineBalance();
+  if (!amt || amt <= 0) return toast('Enter a valid amount');
+  if (amt > bal) return toast(`Only ₹${bal.toLocaleString('en-IN')} is available in online balance`);
+
+  const counts = {};
+  let total = 0;
+  DENOMS.forEach(d => {
+    const v = parseInt(document.getElementById('edenom_' + d).value) || 0;
+    counts[d] = v;
+    total += v * d;
+  });
+  if (total !== amt) {
+    if (!confirm(`Denomination total (₹${total}) doesn't match the encash amount (₹${amt}). Save anyway?`)) return;
+  }
+
+  if (!data.withdrawals) data.withdrawals = [];
+  data.withdrawals.push({
+    id: data.nextId++, date: todayStr(), amount: amt,
+    denom: counts, timestamp: new Date().toISOString()
+  });
+
+  // Fold the received notes into the current physical cash denomination count.
+  const current = getCurrentDenomCounts();
+  const merged = {};
+  DENOMS.forEach(d => { merged[d] = (current[d] || 0) + (counts[d] || 0); });
+  const mergedTotal = DENOMS.reduce((s, d) => s + merged[d] * d, 0);
+  data.denomSnapshots.push({
+    date: todayStr(), timestamp: new Date().toISOString(),
+    counts: merged, total: mergedTotal, note: `Online encashment ₹${amt.toLocaleString('en-IN')}`
+  });
+
   save();
+  closeEncashModal();
   renderDashboard();
-  toast('✓ Withdrawal recorded');
+  toast(`✓ ₹${amt.toLocaleString('en-IN')} moved from online to cash`);
 }
 
 let _payFilter = 'all';
@@ -1264,9 +1527,9 @@ function getCurrentDenomCounts() {
 }
 
 function getCashBalance() {
-  let totalIn = 0, totalOut = 0;
-  data.transactions.forEach(t => { if (t.type==='in') totalIn += t.amount; else totalOut += t.amount; });
-  return totalIn - totalOut;
+  // Physical cash in hand: cash-mode transactions plus anything encashed from online.
+  const { cashIn, cashOut } = getCashTxTotals();
+  return cashIn - cashOut + getTotalEncashed();
 }
 
 function renderDenom() {
@@ -1374,6 +1637,7 @@ function renderDenomHistory() {
         <strong>${dateFmt}${timeFmt}</strong>
         <span class="gold" style="font-weight:800;">₹${snap.total.toLocaleString('en-IN')}</span>
       </div>
+      ${snap.note ? `<div class="tx-note" style="margin-top:2px;"><span class="badge badge-online">${escapeHtml(snap.note)}</span></div>` : ''}
       <div class="tx-note" style="margin-top:4px;">${breakdown || 'No notes recorded'}</div>
     `;
     container.appendChild(div);
