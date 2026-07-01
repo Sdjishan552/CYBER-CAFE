@@ -359,6 +359,37 @@
   .delta-down{color:var(--coral);}
   .delta-same{color:var(--ink-soft);}
 
+  /* Customer dues (khata) */
+  .due-banner{
+    background:linear-gradient(135deg,#e76f51 0%,#c65a3e 100%);
+    color:#fff;border-radius:14px;padding:16px 18px;margin-bottom:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .due-banner .wb-left .wb-title{font-size:13px;font-weight:700;opacity:0.9;}
+  .due-banner .wb-left .wb-amt{font-size:24px;font-weight:900;font-family:Georgia,serif;margin-top:2px;}
+  .due-banner .wb-btn{
+    background:rgba(255,255,255,0.22);color:#fff;border:none;border-radius:10px;
+    padding:10px 14px;font-size:13px;font-weight:800;white-space:nowrap;
+    width:auto;margin:0;flex-shrink:0;
+  }
+  .badge-due-pending{background:var(--coral-bg);color:var(--coral);}
+  .badge-due-partial{background:var(--gold-bg);color:var(--gold);}
+  .badge-due-closed{background:var(--green-bg);color:var(--green);}
+  .badge-duemark{background:#e8f4fd;color:#1a6ea8;margin-left:4px;}
+  .due-item{
+    background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;
+    border:1px solid #f0e8d8;
+  }
+  .due-item .due-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .due-item .due-name{font-weight:700;font-size:15px;}
+  .due-item .due-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;line-height:1.5;}
+  .due-item .due-amt-col{text-align:right;flex-shrink:0;}
+  .due-item .due-amt{font-weight:800;font-size:16px;color:var(--coral);}
+  .due-item .due-remaining{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .due-item .due-actions{display:flex;gap:8px;margin-top:10px;}
+  .due-item .due-actions button{width:auto;margin:0;padding:9px 14px;font-size:13px;flex:1;}
+  .due-empty-note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+
   /* Category bar */
   .cat-bar-row{margin-bottom:9px;}
   .cat-bar-top{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:4px;}
@@ -454,6 +485,34 @@
   </div>
 </div>
 
+<!-- SETTLE DUE MODAL -->
+<div id="settleDueModal" class="lock-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>🧾 Settle Due</h2>
+    <p class="mhint" id="settleDueCustomerLine">Customer</p>
+    <div class="modal-available" id="settleDueRemaining">Remaining: ₹0</div>
+
+    <label>Amount received now (₹)</label>
+    <input type="number" id="settleAmount" inputmode="decimal">
+
+    <label>Received as</label>
+    <div class="pay-toggle">
+      <input type="radio" name="settlePayMode" id="settleModeCash" value="cash" checked>
+      <label for="settleModeCash">💵 Cash</label>
+      <input type="radio" name="settlePayMode" id="settleModeOnline" value="online">
+      <label for="settleModeOnline">📱 Online</label>
+    </div>
+
+    <label>Date received</label>
+    <input type="date" id="settleDate">
+
+    <div class="small-note" id="settleFullNote" style="margin-top:10px;"></div>
+
+    <button class="btn-success" onclick="confirmSettleDue()">Confirm payment</button>
+    <button class="btn-secondary" onclick="closeSettleDueModal()">Cancel</button>
+  </div>
+</div>
+
 <header>
   <h1>Cyber Cafe Cash Book</h1>
   <div class="sub" id="todayDate"></div>
@@ -494,6 +553,18 @@
           <div class="wb-amt" id="withdrawAmt">₹0</div>
         </div>
         <button class="wb-btn" onclick="openEncashModal()">Encash ✓</button>
+      </div>
+    </div>
+
+
+    <!-- Customer dues section -->
+    <div id="duesSummarySection">
+      <div class="due-banner" id="duesBanner" style="display:none;">
+        <div class="wb-left">
+          <div class="wb-title">🧾 Customers owe you</div>
+          <div class="wb-amt" id="duesPendingAmt">₹0</div>
+        </div>
+        <button class="wb-btn" onclick="openDuesPage()">Manage dues →</button>
       </div>
     </div>
 
@@ -618,6 +689,49 @@
     <div class="card">
       <h2>All entries</h2>
       <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER DUES -->
+  <div class="page" id="page-dues">
+    <div class="card">
+      <h2>🧾 Track a due</h2>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:2px;line-height:1.5;">
+        Work is done but the customer hasn't paid yet? Log it here — it won't count as income until you actually collect it.
+      </p>
+      <label>Customer name</label>
+      <input type="text" id="dueCustomer" placeholder="e.g. Ramesh, Sharma Ji" autocomplete="off" list="dueCustomerSuggestions">
+      <datalist id="dueCustomerSuggestions"></datalist>
+
+      <label>Amount due (₹)</label>
+      <input type="number" id="dueAmount" inputmode="decimal" placeholder="0">
+
+      <label>Category</label>
+      <select id="dueCategory">
+        <option>Browsing/Printing</option>
+        <option>Photocopy/Scan</option>
+        <option>Online Form/Service</option>
+        <option>Recharge/Bill Pay</option>
+        <option>Other</option>
+      </select>
+
+      <label>Note (optional)</label>
+      <input type="text" id="dueNote" placeholder="e.g. what the work was" autocomplete="off">
+
+      <label>Date</label>
+      <input type="date" id="dueDate">
+
+      <button class="btn-primary" onclick="addDue()">Add due</button>
+    </div>
+
+    <div class="card">
+      <h2>Pending &amp; partial dues</h2>
+      <div id="duesPendingList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Closed dues <button id="duesClosedToggle" onclick="toggleDuesClosedView()" style="float:right;width:auto;margin:0;padding:4px 10px;font-size:11px;background:var(--green-bg);color:var(--green);border:1px solid #d5ecd9;border-radius:7px;font-weight:700;">Show all</button></h2>
+      <div id="duesClosedList"></div>
     </div>
   </div>
 
@@ -826,6 +940,7 @@
 <nav>
   <button class="active" onclick="showPage('dashboard', this)"><span class="icon">🏠</span>Home</button>
   <button onclick="showPage('history', this)"><span class="icon">📜</span>History</button>
+  <button id="navDuesBtn" onclick="showPage('dues', this)"><span class="icon">🧾</span>Dues</button>
   <button onclick="showPage('denom', this)"><span class="icon">💵</span>Cash</button>
   <button onclick="showPage('stats', this)"><span class="icon">📊</span>Stats</button>
 </nav>
@@ -834,9 +949,11 @@
 let data = JSON.parse(localStorage.getItem('cashbook_data')) || {
   transactions: [],
   denomSnapshots: [],
+  dues: [],
   securityCode: '1234',
   nextId: 1
 };
+if (!data.dues) data.dues = [];
 
 let privacyOn = (localStorage.getItem('cashbook_privacy') === '1');
 
@@ -982,6 +1099,7 @@ async function fsRestoreFromFile() {
     if (!confirm('This will replace ALL current data with the backup file. Continue?')) return;
     data = restored;
     if (!data.denomSnapshots) data.denomSnapshots = [];
+    if (!data.dues) data.dues = [];
     if (!data.securityCode) data.securityCode = '1234';
     if (!data.nextId) data.nextId = (Math.max(0, ...data.transactions.map(t=>t.id||0)) + 1);
     localStorage.setItem('cashbook_data', JSON.stringify(data));
@@ -1024,6 +1142,8 @@ const todayStr = () => {
 
 document.getElementById('entryDate').value = todayStr();
 document.getElementById('entryDate').max = todayStr();
+document.getElementById('dueDate').value = todayStr();
+document.getElementById('dueDate').max = todayStr();
 document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
 function showPage(name, btn) {
@@ -1040,6 +1160,7 @@ function goToPage(name, btn) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   if (name === 'history') renderHistory();
+  if (name === 'dues') renderDuesPage();
   if (name === 'denom') renderDenom();
   if (name === 'stats') { renderStats(); renderBackupInfo(); }
 }
@@ -1250,6 +1371,8 @@ function renderDashboard() {
   document.getElementById('withdrawAmt').textContent = fmt(onlineBalance);
   wb.style.display = onlineBalance > 0 ? 'flex' : 'none';
 
+  renderDuesSummary();
+
   const eyeBtn = document.getElementById('eyeToggle');
   if (eyeBtn) eyeBtn.textContent = privacyOn ? '🙈' : '👁️';
 
@@ -1295,6 +1418,7 @@ function txElement(t, mask) {
         ${payBadge}
         ${t.pastDateEntry ? '<span class="badge badge-edited">past</span>' : ''}
         ${t.edited ? '<span class="badge badge-editmark">edited</span>' : ''}
+        ${t.dueSettlement ? '<span class="badge badge-duemark">🧾 due settled</span>' : ''}
         &nbsp;${dateFmt}
       </div>
     </div>
@@ -1449,6 +1573,230 @@ function confirmEncash() {
   closeEncashModal();
   renderDashboard();
   toast(`✓ ₹${amt.toLocaleString('en-IN')} moved from online to cash`);
+}
+
+/* ── Customer dues (khata) ─────────────────────────────────────
+   A due is money owed to you for work already done. It does NOT
+   count as income until it's actually settled — settling creates
+   a normal transaction (cash or online) and auto-closes the due
+   once the full amount has been collected. ─────────────────────── */
+
+function dueTotalPaid(due) {
+  return (due.payments || []).reduce((s, p) => s + p.amount, 0);
+}
+
+function dueRemaining(due) {
+  return Math.max(0, due.amount - dueTotalPaid(due));
+}
+
+function addDue() {
+  const customerName = document.getElementById('dueCustomer').value.trim();
+  const amount = parseFloat(document.getElementById('dueAmount').value);
+  const category = document.getElementById('dueCategory').value;
+  const note = document.getElementById('dueNote').value.trim();
+  const date = document.getElementById('dueDate').value;
+
+  if (!customerName) return toast("Enter the customer's name");
+  if (!amount || amount <= 0) return toast('Enter a valid amount');
+  if (!date) return toast('Select a date');
+  if (date > todayStr()) return toast('✕ Future date not allowed');
+
+  const proceed = () => {
+    data.dues.push({
+      id: data.nextId++,
+      customerName, amount, category, note, date,
+      createdAt: new Date().toISOString(),
+      payments: [],
+      status: 'pending'
+    });
+    save();
+    document.getElementById('dueCustomer').value = '';
+    document.getElementById('dueAmount').value = '';
+    document.getElementById('dueNote').value = '';
+    document.getElementById('dueDate').value = todayStr();
+    renderDuesPage();
+    renderDashboard();
+    toast('✓ Due recorded');
+  };
+
+  if (date < todayStr()) requestSecurityCode(proceed); else proceed();
+}
+
+function openDuesPage() {
+  showPage('dues', document.getElementById('navDuesBtn'));
+}
+
+function renderDuesSummary() {
+  if (!data.dues) data.dues = [];
+  const pending = data.dues.filter(d => d.status !== 'closed');
+  const pendingTotal = pending.reduce((s, d) => s + dueRemaining(d), 0);
+  const amtStr = '₹' + pendingTotal.toLocaleString('en-IN');
+  document.getElementById('duesPendingAmt').textContent = privacyOn ? maskAmount(amtStr) : amtStr;
+  document.getElementById('duesBanner').style.display = pendingTotal > 0 ? 'flex' : 'none';
+}
+
+function updateDueCustomerSuggestions() {
+  const dl = document.getElementById('dueCustomerSuggestions');
+  if (!dl) return;
+  const seen = new Set();
+  const names = [];
+  [...data.dues].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).forEach(d => {
+    const key = d.customerName.toLowerCase();
+    if (!seen.has(key)) { seen.add(key); names.push(d.customerName); }
+  });
+  dl.innerHTML = names.map(n => `<option value="${escapeHtml(n)}">`).join('');
+}
+
+function dueElement(due) {
+  const div = document.createElement('div');
+  div.className = 'due-item';
+  const remaining = dueRemaining(due);
+  const paid = dueTotalPaid(due);
+  const dateFmt = new Date(due.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  const statusBadge = due.status === 'closed'
+    ? '<span class="badge badge-due-closed">Closed</span>'
+    : due.status === 'partial'
+      ? '<span class="badge badge-due-partial">Partially paid</span>'
+      : '<span class="badge badge-due-pending">Pending</span>';
+
+  let paymentsLine = '';
+  if (paid > 0) {
+    const modes = (due.payments || []).map(p => (p.payMode === 'online' ? '📱' : '💵') + ' ₹' + p.amount.toLocaleString('en-IN')).join(', ');
+    paymentsLine = `<div class="due-meta">Received: ${modes}</div>`;
+  }
+
+  div.innerHTML = `
+    <div class="due-top">
+      <div>
+        <div class="due-name">${escapeHtml(due.customerName)}</div>
+        <div class="due-meta">
+          ${statusBadge} ${due.category ? '· ' + escapeHtml(due.category) : ''} &nbsp;${dateFmt}
+          ${due.note ? '<br>' + escapeHtml(due.note) : ''}
+        </div>
+        ${paymentsLine}
+      </div>
+      <div class="due-amt-col">
+        <div class="due-amt">₹${due.amount.toLocaleString('en-IN')}</div>
+        <div class="due-remaining">${due.status === 'closed' ? 'Fully paid' : '₹' + remaining.toLocaleString('en-IN') + ' left'}</div>
+      </div>
+    </div>
+    <div class="due-actions">
+      ${due.status !== 'closed' ? `<button class="btn-success" onclick="openSettleModal(${due.id})">Settle payment</button>` : ''}
+      ${paid === 0 ? `<button class="btn-secondary" onclick="deleteDue(${due.id})">Delete</button>` : ''}
+    </div>
+  `;
+  return div;
+}
+
+let duesClosedShowAll = false;
+function toggleDuesClosedView() {
+  duesClosedShowAll = !duesClosedShowAll;
+  const btn = document.getElementById('duesClosedToggle');
+  if (btn) btn.textContent = duesClosedShowAll ? 'Show recent' : 'Show all';
+  renderDuesPage();
+}
+
+function renderDuesPage() {
+  if (!data.dues) data.dues = [];
+  updateDueCustomerSuggestions();
+
+  const pendingList = document.getElementById('duesPendingList');
+  const pending = [...data.dues].filter(d => d.status !== 'closed')
+    .sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+  pendingList.innerHTML = pending.length ? '' : '<div class="empty">No pending dues — nicely tracked!</div>';
+  pending.forEach(d => pendingList.appendChild(dueElement(d)));
+
+  const closedList = document.getElementById('duesClosedList');
+  let closed = [...data.dues].filter(d => d.status === 'closed')
+    .sort((a, b) => (b.closedDate || '').localeCompare(a.closedDate || ''));
+  if (!duesClosedShowAll) closed = closed.slice(0, 5);
+  closedList.innerHTML = closed.length ? '' : '<div class="empty">No closed dues yet.</div>';
+  closed.forEach(d => closedList.appendChild(dueElement(d)));
+}
+
+let _settlingDueId = null;
+
+function openSettleModal(dueId) {
+  const due = data.dues.find(d => d.id === dueId);
+  if (!due) return;
+  _settlingDueId = dueId;
+  const remaining = dueRemaining(due);
+  document.getElementById('settleDueCustomerLine').textContent = `${due.customerName}${due.category ? ' — ' + due.category : ''}`;
+  document.getElementById('settleDueRemaining').textContent = 'Remaining: ₹' + remaining.toLocaleString('en-IN');
+  document.getElementById('settleAmount').value = remaining;
+  document.getElementById('settleAmount').max = remaining;
+  document.getElementById('settleDate').value = todayStr();
+  document.getElementById('settleDate').max = todayStr();
+  document.getElementById('settleModeCash').checked = true;
+  document.getElementById('settleFullNote').textContent = 'Paying the full remaining amount automatically closes this due.';
+  document.getElementById('settleDueModal').style.display = 'flex';
+}
+
+function closeSettleDueModal() {
+  document.getElementById('settleDueModal').style.display = 'none';
+  _settlingDueId = null;
+}
+
+function confirmSettleDue() {
+  if (_settlingDueId == null) return;
+  const due = data.dues.find(d => d.id === _settlingDueId);
+  if (!due) return;
+
+  const remaining = dueRemaining(due);
+  const amount = parseFloat(document.getElementById('settleAmount').value);
+  const payMode = document.querySelector('input[name="settlePayMode"]:checked').value;
+  const date = document.getElementById('settleDate').value;
+
+  if (!amount || amount <= 0) return toast('Enter a valid amount');
+  if (amount > remaining + 0.001) return toast(`Only ₹${remaining.toLocaleString('en-IN')} is remaining on this due`);
+  if (!date) return toast('Select a date');
+  if (date > todayStr()) return toast('✕ Future date not allowed');
+
+  const proceed = () => {
+    const txId = data.nextId++;
+    data.transactions.push({
+      id: txId,
+      date, type: 'in', amount,
+      category: due.category || 'Due Settlement',
+      note: `Due settled — ${due.customerName}${due.note ? ' (' + due.note + ')' : ''}`,
+      payMode,
+      createdAt: new Date().toISOString(),
+      pastDateEntry: date < todayStr(),
+      dueSettlement: true,
+      dueId: due.id
+    });
+
+    if (!due.payments) due.payments = [];
+    due.payments.push({ amount, payMode, date, timestamp: new Date().toISOString(), txId });
+
+    const totalPaid = dueTotalPaid(due);
+    if (totalPaid >= due.amount - 0.001) {
+      due.status = 'closed';
+      due.closedDate = new Date().toISOString();
+    } else {
+      due.status = 'partial';
+    }
+
+    save();
+    closeSettleDueModal();
+    renderDuesPage();
+    renderDashboard();
+    toast(due.status === 'closed' ? '✓ Due closed — fully paid' : '✓ Partial payment recorded');
+  };
+
+  if (date < todayStr()) requestSecurityCode(proceed); else proceed();
+}
+
+function deleteDue(id) {
+  const due = data.dues.find(d => d.id === id);
+  if (!due) return;
+  if ((due.payments || []).length > 0) return toast("Can't delete a due with recorded payments");
+  if (!confirm(`Delete due for ${due.customerName} (₹${due.amount.toLocaleString('en-IN')})?`)) return;
+  data.dues = data.dues.filter(d => d.id !== id);
+  save();
+  renderDuesPage();
+  renderDashboard();
+  toast('Due deleted');
 }
 
 let _payFilter = 'all';
@@ -2212,6 +2560,7 @@ function importData(event) {
       const imported = JSON.parse(e.target.result);
       if (confirm('This will replace ALL current data with the backup. Continue?')) {
         data = imported;
+        if (!data.dues) data.dues = [];
         save();
         renderDashboard();
         toast('✓ Data restored');
@@ -2226,7 +2575,7 @@ function importData(event) {
 function resetAll() {
   requestSecurityCode(() => {
     if (confirm('This will permanently delete ALL data. Are you absolutely sure?')) {
-      data = { transactions: [], denomSnapshots: [], securityCode: data.securityCode, nextId: 1 };
+      data = { transactions: [], denomSnapshots: [], dues: [], securityCode: data.securityCode, nextId: 1 };
       save();
       renderDashboard();
       toast('All data reset');
