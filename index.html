@@ -1639,18 +1639,22 @@ function updateEncashDiff() {
   if (diff === 0) {
     diffEl.textContent = '✓ Notes match the encash amount';
     diffEl.className = 'diff-warn diff-ok';
+  } else if (diff < 0) {
+    diffEl.textContent = `Only ₹${total.toLocaleString('en-IN')} will be encashed — the remaining ₹${Math.abs(diff).toLocaleString('en-IN')} will stay in online balance`;
+    diffEl.className = 'diff-warn diff-bad';
   } else {
-    diffEl.textContent = `Mismatch: ${diff > 0 ? '+' : ''}₹${diff.toLocaleString('en-IN')} — adjust notes to match`;
+    diffEl.textContent = `Notes total ₹${total.toLocaleString('en-IN')}, which is ₹${diff.toLocaleString('en-IN')} more than the typed amount — the full ₹${total.toLocaleString('en-IN')} will be encashed`;
     diffEl.className = 'diff-warn diff-bad';
   }
 }
 
 function confirmEncash() {
-  const amt = parseFloat(document.getElementById('encashAmount').value);
   const bal = getOnlineBalance();
-  if (!amt || amt <= 0) return toast('Enter a valid amount');
-  if (amt > bal) return toast(`Only ₹${bal.toLocaleString('en-IN')} is available in online balance`);
 
+  // The denomination boxes are the source of truth: whatever notes/coins
+  // are actually entered is what actually moves from online to cash.
+  // Any shortfall between the typed amount and the notes entered simply
+  // stays in the online balance — nothing is lost.
   const counts = {};
   let total = 0;
   DENOMS.forEach(d => {
@@ -1658,13 +1662,21 @@ function confirmEncash() {
     counts[d] = v;
     total += v * d;
   });
-  if (total !== amt) {
-    if (!confirm(`Denomination total (₹${total}) doesn't match the encash amount (₹${amt}). Save anyway?`)) return;
+
+  if (total <= 0) return toast('Enter at least one note or coin to encash');
+  if (total > bal) return toast(`Only ₹${bal.toLocaleString('en-IN')} is available in online balance`);
+
+  const typedAmt = parseFloat(document.getElementById('encashAmount').value) || 0;
+  if (total !== typedAmt) {
+    const msg = total < typedAmt
+      ? `You entered ₹${typedAmt.toLocaleString('en-IN')} to encash, but the notes only add up to ₹${total.toLocaleString('en-IN')}. Only ₹${total.toLocaleString('en-IN')} will move to cash — the remaining ₹${(typedAmt - total).toLocaleString('en-IN')} will stay in online balance. Continue?`
+      : `The notes add up to ₹${total.toLocaleString('en-IN')}, more than the ₹${typedAmt.toLocaleString('en-IN')} you typed. The full ₹${total.toLocaleString('en-IN')} will move to cash. Continue?`;
+    if (!confirm(msg)) return;
   }
 
   if (!data.withdrawals) data.withdrawals = [];
   data.withdrawals.push({
-    id: data.nextId++, date: todayStr(), amount: amt,
+    id: data.nextId++, date: todayStr(), amount: total,
     denom: counts, timestamp: new Date().toISOString()
   });
 
@@ -1675,13 +1687,13 @@ function confirmEncash() {
   const mergedTotal = DENOMS.reduce((s, d) => s + merged[d] * d, 0);
   data.denomSnapshots.push({
     date: todayStr(), timestamp: new Date().toISOString(),
-    counts: merged, total: mergedTotal, note: `Online encashment ₹${amt.toLocaleString('en-IN')}`
+    counts: merged, total: mergedTotal, note: `Online encashment ₹${total.toLocaleString('en-IN')}`
   });
 
   save();
   closeEncashModal();
   renderDashboard();
-  toast(`✓ ₹${amt.toLocaleString('en-IN')} moved from online to cash`);
+  toast(`✓ ₹${total.toLocaleString('en-IN')} moved from online to cash`);
 }
 
 /* ── Customer dues (khata) ─────────────────────────────────────
